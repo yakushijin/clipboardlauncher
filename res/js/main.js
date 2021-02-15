@@ -1,22 +1,35 @@
 import React from "react";
 import ReactDOM from "react-dom";
 
-function App() {
+import { Clipboard } from "./view/Clipboard";
+import { Shortcut } from "./view/Shortcut";
+import { Template } from "./view/Template";
+
+function ClipboardEntry() {
   console.log(1);
-  return <div>テスト</div>;
+  return (
+    <div>
+      <Clipboard />
+    </div>
+  );
 }
 
-if (document.getElementById("app")) {
-  console.log(1);
-  ReactDOM.render(<App />, document.getElementById("app"));
+if (document.getElementById("clipboardApp")) {
+  ReactDOM.render(<ClipboardEntry />, document.getElementById("clipboardApp"));
 }
 
-function App2() {
-  console.log(2);
-  return <div>テスト２</div>;
+function ShortcutEntry() {
+  return <Shortcut />;
 }
 
-if (document.getElementById("app2")) {
-  console.log(2);
-  ReactDOM.render(<App2 />, document.getElementById("app2"));
+if (document.getElementById("shortcutApp")) {
+  ReactDOM.render(<ShortcutEntry />, document.getElementById("shortcutApp"));
+}
+
+function TemplateEntry() {
+  return <Template />;
+}
+
+if (document.getElementById("templateApp")) {
+  ReactDOM.render(<TemplateEntry />, document.getElementById("templateApp"));
 }

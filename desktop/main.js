@@ -2,7 +2,7 @@
 const { app, globalShortcut, Menu, Tray, BrowserWindow } = require("electron");
 const path = require("path");
 
-function createWindow() {
+function clipboardWindow() {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
     width: 200,
@@ -15,13 +15,13 @@ function createWindow() {
   });
 
   // and load the index.html of the app.
-  mainWindow.loadFile("public/index.html", ["test"]);
+  mainWindow.loadFile("public/clipboard.html", ["test"]);
 
   // Open the DevTools.
   // mainWindow.webContents.openDevTools()
 }
 
-function createWindow2() {
+function shortcutWindow() {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
     width: 800,
@@ -34,7 +34,26 @@ function createWindow2() {
   });
 
   // and load the index.html of the app.
-  mainWindow.loadFile("public/index2.html", ["test"]);
+  mainWindow.loadFile("public/shortcut.html", ["test"]);
+
+  // Open the DevTools.
+  // mainWindow.webContents.openDevTools()
+}
+
+function templateWindow() {
+  // Create the browser window.
+  const mainWindow = new BrowserWindow({
+    width: 800,
+    height: 400,
+    webPreferences: {
+      preload: path.join(__dirname, "preload.js"),
+    },
+    // show: false, // アプリ起動時にウィンドウを表示しない
+    skipTaskbar: true, // タスクバーに表示しない
+  });
+
+  // and load the index.html of the app.
+  mainWindow.loadFile("public/template.html", ["test"]);
 
   // Open the DevTools.
   // mainWindow.webContents.openDevTools()
@@ -67,11 +86,15 @@ app.whenReady().then(() => {
   // });
 
   const ret = globalShortcut.register("CommandOrControl+X", () => {
-    createWindow();
+    clipboardWindow();
   });
 
-  const ret2 = globalShortcut.register("CommandOrControl+Z", () => {
-    createWindow2();
+  const ret2 = globalShortcut.register("CommandOrControl+C", () => {
+    shortcutWindow();
+  });
+
+  const ret3 = globalShortcut.register("CommandOrControl+Z", () => {
+    templateWindow();
   });
 
   if (!ret) {
