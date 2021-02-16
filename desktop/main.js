@@ -2,7 +2,22 @@
 const { app, globalShortcut, Menu, Tray, BrowserWindow } = require("electron");
 const path = require("path");
 
+const Store = require("electron-store");
+const ClipboardStore = new Store({
+  name: "clipboardData",
+});
+const ShortcutStore = new Store({
+  name: "shortcutData",
+});
+const TemplateStore = new Store({
+  name: "templateData",
+});
+
 function clipboardWindow() {
+  ClipboardStore.set("programs", { id: 1, name: "TEST" });
+  const programs = ClipboardStore.get("programs");
+  console.log(programs);
+
   // Create the browser window.
   const mainWindow = new BrowserWindow({
     width: 200,
@@ -22,6 +37,9 @@ function clipboardWindow() {
 }
 
 function shortcutWindow() {
+  ShortcutStore.set("programs", { id: 1, name: "TEST" });
+  const programs = ShortcutStore.get("programs");
+  console.log(programs);
   // Create the browser window.
   const mainWindow = new BrowserWindow({
     width: 800,
@@ -41,6 +59,9 @@ function shortcutWindow() {
 }
 
 function templateWindow() {
+  TemplateStore.set("programs", { id: 1, name: "TEST" });
+  const programs = TemplateStore.get("programs");
+  console.log(programs);
   // Create the browser window.
   const mainWindow = new BrowserWindow({
     width: 800,
