@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { SimpleList } from "../components/List";
 
 import styled from "styled-components";
@@ -21,12 +21,21 @@ const TextBack = styled.div`
 const ListSetTest = [1, 2, 3, "aaa"];
 
 export const Template = () => {
+  const [clicked, setClicked] = useState({});
+  if (clicked == {}) {
+    ipcRenderer.invoke("some-name", { message: "hello" }).then((result) => {
+      setClicked(result);
+    });
+  }
+
+  console.log(clicked);
+
   return (
     <FlexBox>
       <ListBack>
         <SimpleList listData={ListSetTest} />
       </ListBack>
-      <TextBack>aaa</TextBack>
+      <TextBack></TextBack>
     </FlexBox>
   );
 };

@@ -1,5 +1,12 @@
 // Modules to control application life and create native browser window
-const { app, globalShortcut, Menu, Tray, BrowserWindow } = require("electron");
+const {
+  app,
+  globalShortcut,
+  ipcMain,
+  Menu,
+  Tray,
+  BrowserWindow,
+} = require("electron");
 const path = require("path");
 
 const Store = require("electron-store");
@@ -61,12 +68,12 @@ function shortcutWindow() {
 function templateWindow() {
   TemplateStore.set("programs", { id: 1, name: "TEST" });
   const programs = TemplateStore.get("programs");
-  console.log(programs);
   // Create the browser window.
   const mainWindow = new BrowserWindow({
     width: 800,
     height: 400,
     webPreferences: {
+      nodeIntegration: false,
       preload: path.join(__dirname, "preload.js"),
     },
     // show: false, // アプリ起動時にウィンドウを表示しない
@@ -76,8 +83,10 @@ function templateWindow() {
   // and load the index.html of the app.
   mainWindow.loadFile("public/template.html", ["test"]);
 
-  // Open the DevTools.
-  // mainWindow.webContents.openDevTools()
+  ipcMain.handle("some-name", async (event, someArgument) => {
+    // const result = await someArgument;
+    return programs;
+  });
 }
 
 // This method will be called when Electron has finished
