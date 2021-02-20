@@ -66,7 +66,7 @@ function shortcutWindow() {
 }
 
 function templateWindow() {
-  TemplateStore.set("programs", { id: 1, name: "TEST" });
+  TemplateStore.set("programs", [{ id: 1, name: "TEST" }]);
   const programs = TemplateStore.get("programs");
   // Create the browser window.
   const mainWindow = new BrowserWindow({
@@ -86,6 +86,11 @@ function templateWindow() {
   ipcMain.handle("some-name", async (event, someArgument) => {
     // const result = await someArgument;
     return programs;
+  });
+
+  ipcMain.handle("set", async (event, someArgument) => {
+    console.log(3);
+    TemplateStore.set("programs", { id: 2, name: "TEST2" });
   });
 }
 
