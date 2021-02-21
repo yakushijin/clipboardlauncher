@@ -5,6 +5,7 @@ const {
   Menu,
   Tray,
   BrowserWindow,
+  screen,
   clipboard,
 } = require("electron");
 const path = require("path");
@@ -72,9 +73,12 @@ app.on("window-all-closed", function () {
  ===============================*/
 
 function windowOpen(width, height, fileName) {
+  var mouthPoint = screen.getCursorScreenPoint();
   const mainWindow = new BrowserWindow({
     width: width,
     height: height,
+    x: mouthPoint.x,
+    y: mouthPoint.y,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
     },
