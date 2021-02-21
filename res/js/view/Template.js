@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import { SimpleList } from "../components/List";
+import { initDataGet, dataSet } from "../common/ProcessInterface";
 
 import styled from "styled-components";
 
@@ -21,12 +22,21 @@ const TextBack = styled.div`
 const ListSetTest = [1, 2, 3, "aaa"];
 
 export const Template = () => {
+  const [data, setData] = useState({});
+  if (!Object.keys(data).length) {
+    initDataGet(setData);
+  }
+
+  // dataSet();
+
+  console.log(data);
+
   return (
     <FlexBox>
       <ListBack>
         <SimpleList listData={ListSetTest} />
       </ListBack>
-      <TextBack>aaa</TextBack>
+      <TextBack></TextBack>
     </FlexBox>
   );
 };
