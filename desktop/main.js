@@ -25,6 +25,9 @@ const ClipboardOpenButton = "CommandOrControl+Shift+Z";
 const ShortcutOpenButton = "CommandOrControl+Shift+X";
 const TemplateOpenButton = "CommandOrControl+Shift+C";
 
+const ClipboardMaxCount = 5;
+const ClipboardNotDeleteIndex = -1;
+
 /*===============================
  アプリケーション起動直後の処理
  ===============================*/
@@ -32,7 +35,7 @@ app.whenReady().then(() => {
   const tray = new Tray(__dirname + "/icon/icon.png");
   var contextMenu = Menu.buildFromTemplate([
     {
-      label: "表示",
+      label: "設定",
       click: () => {
         createWindow();
       },
@@ -40,15 +43,15 @@ app.whenReady().then(() => {
     {
       label: "終了",
       click: function () {
-        mainWindow.close();
+        app.quit();
       },
     },
   ]);
   tray.setContextMenu(contextMenu);
 
   globalShortcut.register(ClipboardOpenButton, () => {
-    windowOpen(800, 400, "clipboard");
-    clipboardStore();
+    const mainWindow = windowOpen(800, 400, "clipboard");
+    clipboardStore(mainWindow);
   });
 
   globalShortcut.register(ShortcutOpenButton, () => {
@@ -65,7 +68,7 @@ app.whenReady().then(() => {
 });
 
 app.on("window-all-closed", function () {
-  if (process.platform !== "darwin") app.quit();
+  // if (process.platform !== "darwin") app.quit();
 });
 
 /*===============================
@@ -86,16 +89,26 @@ function windowOpen(width, height, fileName) {
     skipTaskbar: true, // タスクバーに表示しない
   });
   mainWindow.loadFile("public/" + fileName + ".html", ["test"]);
+  // mainWindow.close();
+  return mainWindow;
 }
 
 /*===============================
  クリップボード関連
  ===============================*/
 
-function clipboardStore() {
+function clipboardStore(mainWindow) {
   ipcMain.handle("getClipboard", async (event, someArgument) => {
-    const programs = ClipboardStore.get("clipboardString");
-    return programs;
+    // const programs = ClipboardStore.get("clipboardString");
+    return ClipboardStore.get("clipboardString");
+  });
+
+  ipcMain.handle("clipboardSet", async (event, data) => {
+    ClipboardStore.set("deleteIndex", data.index);
+    clipboard.writeText(data.value);
+    mainWindow.close();
+    ipcMain.removeHandler("getClipboard");
+    ipcMain.removeHandler("clipboardSet");
   });
 }
 
@@ -104,16 +117,28 @@ function clipboardSurveillance() {
   var clipboardList = ClipboardStore.get("clipboardString");
   if (typeof clipboardList === "undefined") {
     clipboardList = [];
+    ClipboardStore.set("deleteIndex", -1);
   }
 
   setInterval(function () {
     var newString = clipboard.readText();
 
     if (clipboardList[clipboardList.length - 1] != newString) {
+      var deleteIndex = ClipboardStore.get("deleteIndex");
+      if (deleteIndex != ClipboardNotDeleteIndex) {
+        clipboardList.splice(deleteIndex, 1);
+        ClipboardStore.set("deleteIndex", ClipboardNotDeleteIndex);
+      }
+
+      if (clipboardList.length > ClipboardMaxCount) {
+        var deleteArray = clipboardList.length - ClipboardMaxCount;
+        clipboardList.splice(0, deleteArray);
+      }
+
       clipboardList.push(newString);
       ClipboardStore.set("clipboardString", clipboardList);
     }
-  }, 500);
+  }, 1000);
 }
 
 /*===============================
