@@ -6,6 +6,7 @@ const {
   Menu,
   Tray,
   BrowserWindow,
+  clipboard,
 } = require("electron");
 const path = require("path");
 
@@ -21,10 +22,6 @@ const TemplateStore = new Store({
 });
 
 function clipboardWindow() {
-  ClipboardStore.set("programs", { id: 1, name: "TEST" });
-  const programs = ClipboardStore.get("programs");
-  console.log(programs);
-
   // Create the browser window.
   const mainWindow = new BrowserWindow({
     width: 200,
@@ -39,8 +36,10 @@ function clipboardWindow() {
   // and load the index.html of the app.
   mainWindow.loadFile("public/clipboard.html", ["test"]);
 
-  // Open the DevTools.
-  // mainWindow.webContents.openDevTools()
+  ipcMain.handle("getClipboard", async (event, someArgument) => {
+    const programs = ClipboardStore.get("clipboardString");
+    return programs;
+  });
 }
 
 function shortcutWindow() {
@@ -135,6 +134,8 @@ app.whenReady().then(() => {
   if (!ret) {
     console.log("registration failed");
   }
+
+  clipboardSurveillance();
 });
 
 // Quit when all windows are closed, except on macOS. There, it's common
@@ -146,3 +147,19 @@ app.on("window-all-closed", function () {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
+
+function clipboardSurveillance() {
+  var clipboardList = ClipboardStore.get("clipboardString");
+  if (typeof clipboardList === "undefined") {
+    clipboardList = [];
+  }
+
+  setInterval(function () {
+    var newString = clipboard.readText();
+
+    if (clipboardList[clipboardList.length - 1] != newString) {
+      clipboardList.push(newString);
+      ClipboardStore.set("clipboardString", clipboardList);
+    }
+  }, 500);
+}
