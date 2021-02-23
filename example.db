@@ -1,0 +1,1 @@
+{"_id":"clipboard","test":["clipboardList","newDoc","    console.log(docs);\n    clipboardList = docs.test;\n    console.log(clipboardList);","mainWindow","clipboardList","    console.log(docs);\n    clipboardList = docs.test;\n    console.log(clipboardList);"]}
