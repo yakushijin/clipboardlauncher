@@ -12,6 +12,13 @@ const path = require("path");
 
 const Store = require("electron-store");
 const Database = require("nedb");
+const InMemoryDb = new Database();
+InMemoryDb.loadDatabase((error) => {
+  if (error !== null) {
+    // console.error(error);
+  }
+});
+
 const db = new Database({ filename: "example.db" });
 db.loadDatabase((error) => {
   if (error !== null) {
@@ -41,6 +48,8 @@ const ClipboardSurveillanceTime = 1000;
  アプリケーション起動直後の処理
  ===============================*/
 app.whenReady().then(() => {
+  nedbInsert(InMemoryDb, { _id: "clipboardDispOpen", value: false });
+
   const tray = new Tray(__dirname + "/icon/icon.png");
   var contextMenu = Menu.buildFromTemplate([
     {
@@ -58,9 +67,23 @@ app.whenReady().then(() => {
   ]);
   tray.setContextMenu(contextMenu);
 
-  globalShortcut.register(ClipboardOpenButton, () => {
-    const mainWindow = windowOpen(800, 400, "clipboard");
-    clipboardStore(mainWindow);
+  // clipboardExe();
+  // globalShortcut.register(ClipboardOpenButton, () => {
+  //   const mainWindow = windowOpen(800, 400, "clipboard");
+  //   clipboardStore(mainWindow);
+  // });
+  globalShortcut.register(ClipboardOpenButton, async () => {
+    const DispStatus = await nedbFindOne(InMemoryDb, {
+      _id: "clipboardDispOpen",
+    });
+    console.log(DispStatus);
+    if (DispStatus.value) {
+      // nedbUpdate(InMemoryDb, { _id: "clipboardDispOpen" }, { value: false });
+    } else {
+      const mainWindow = windowOpen(800, 400, "clipboard");
+      clipboardStore(mainWindow);
+      nedbUpdate(InMemoryDb, { _id: "clipboardDispOpen" }, { value: true });
+    }
   });
 
   globalShortcut.register(ShortcutOpenButton, () => {
@@ -89,13 +112,15 @@ function windowOpen(width, height, fileName) {
   const mainWindow = new BrowserWindow({
     width: width,
     height: height,
-    x: mouthPoint.x,
-    y: mouthPoint.y,
+    x: mouthPoint.x - 10,
+    y: mouthPoint.y - 10,
+    alwaysOnTop: true,
+    frame: false,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
     },
     // show: false, // アプリ起動時にウィンドウを表示しない
-    skipTaskbar: true, // タスクバーに表示しない
+    // skipTaskbar: true, // タスクバーに表示しない
   });
   mainWindow.loadFile("public/" + fileName + ".html", ["test"]);
   // mainWindow.close();
@@ -107,6 +132,9 @@ function windowOpen(width, height, fileName) {
  ===============================*/
 
 function clipboardStore(mainWindow) {
+  var mouthPoint = screen.getCursorScreenPoint();
+  console.log(mouthPoint);
+
   //クリップボード一覧初回画面表示時の処理
   ipcMain.handle("getClipboard", async (event, someArgument) => {
     var latestClipboardList = await nedbFindOne(db, { _id: "clipboard" });
@@ -135,6 +163,12 @@ function clipboardStore(mainWindow) {
       { $set: { value: [] } },
       (error, newDoc) => {}
     );
+    mainWindow.close();
+    ipcClose();
+  });
+
+  //クリップボード一覧クリアボタン押下時の処理
+  ipcMain.handle("clipboardWindowClose", async (event) => {
     mainWindow.close();
     ipcClose();
   });
@@ -180,6 +214,8 @@ function ipcClose() {
   ipcMain.removeHandler("getClipboard");
   ipcMain.removeHandler("clipboardSet");
   ipcMain.removeHandler("clipboardAllDelete");
+  ipcMain.removeHandler("clipboardWindowClose");
+  nedbUpdate(InMemoryDb, { _id: "clipboardDispOpen" }, { value: false });
 }
 
 //クリップボード監視（画面開いていなくても実行）

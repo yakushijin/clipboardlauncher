@@ -8,6 +8,8 @@ const allDelete = () => {
 };
 
 export const Clipboard = () => {
+  window.addEventListener("mousemove", ClipboardWindowClose);
+
   const [data, setData] = useState([]);
   console.log(data);
 
@@ -21,4 +23,18 @@ export const Clipboard = () => {
       <DefaultButton name="クリア" onClick={allDelete} />
     </div>
   );
+};
+
+const ClipboardWindowClose = (event) => {
+  console.log(event.clientX, event.clientY);
+  // console.log(event);
+  if (
+    event.clientX < 6 ||
+    event.clientY < 6 ||
+    event.clientX > 792 ||
+    event.clientY > 392
+  ) {
+    console.log(2);
+    ipcRenderer.invoke("clipboardWindowClose");
+  }
 };

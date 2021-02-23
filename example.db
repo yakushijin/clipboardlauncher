@@ -1,21 +1,4 @@
-{"_id":"clipboard","value":["  //クリップボード一覧クリック時の処理\n"]}
-{"_id":"currentClipboard","value":"  //クリップボード一覧クリック時の処理\n"}
-{"_id":"clipboard","value":[]}
-{"_id":"clipboard","value":[]}
-{"_id":"clipboard","value":[]}
-{"_id":"clipboard","value":["TEST2"]}
-{"_id":"currentClipboard","value":"TEST2"}
-{"_id":"clipboard","value":[]}
-{"_id":"clipboard","value":["event"]}
-{"_id":"currentClipboard","value":"event"}
-{"_id":"clipboard","value":["someArgument","event"]}
-{"_id":"currentClipboard","value":"someArgument"}
-{"_id":"clipboard","value":["async","someArgument","event"]}
-{"_id":"currentClipboard","value":"async"}
-{"_id":"clipboard","value":["async","event"]}
-{"_id":"clipboard","value":["someArgument","async","event"]}
-{"_id":"currentClipboard","value":"someArgument"}
-{"_id":"clipboard","value":["someArgument","async"]}
-{"_id":"clipboard","value":["event","someArgument","async"]}
-{"_id":"currentClipboard","value":"event"}
-{"_id":"clipboard","value":[]}
+{"_id":"clipboard","value":["const ClipboardWindowClose = (event) => {\n  console.log(event.clientX, event.clientY);\n  // console.log(event);\n  if (\n    event.clientX < 6 ||\n    event.clientY < 6 ||\n    event.clientX > 792 ||\n    event.clientY > 392\n  ) {\n    console.log(2);\n    ipcRenderer.invoke(\"clipboardWindowClose\");\n  }\n};","  window.addEventListener(\"mousemove\", ClipboardWindowClose);\n","ClipboardWindowClose","|| event.clientY < 6","clientX"]}
+{"_id":"currentClipboard","value":"const ClipboardWindowClose = (event) => {\n  console.log(event.clientX, event.clientY);\n  // console.log(event);\n  if (\n    event.clientX < 6 ||\n    event.clientY < 6 ||\n    event.clientX > 792 ||\n    event.clientY > 392\n  ) {\n    console.log(2);\n    ipcRenderer.invoke(\"clipboardWindowClose\");\n  }\n};"}
+{"_id":"clipboard","value":["global.myValue = 100;\n","const ClipboardWindowClose = (event) => {\n  console.log(event.clientX, event.clientY);\n  // console.log(event);\n  if (\n    event.clientX < 6 ||\n    event.clientY < 6 ||\n    event.clientX > 792 ||\n    event.clientY > 392\n  ) {\n    console.log(2);\n    ipcRenderer.invoke(\"clipboardWindowClose\");\n  }\n};","  window.addEventListener(\"mousemove\", ClipboardWindowClose);\n","ClipboardWindowClose","|| event.clientY < 6","clientX"]}
+{"_id":"currentClipboard","value":"global.myValue = 100;\n"}
