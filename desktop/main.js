@@ -109,7 +109,7 @@ function windowOpen(width, height, fileName) {
 function clipboardStore(mainWindow) {
   ipcMain.handle("getClipboard", async (event, someArgument) => {
     // const programs = ClipboardStore.get("clipboardString");
-    var searchResult1 = await dbget(db);
+    var searchResult1 = await dbget(db, { _id: "clipboard" });
 
     return searchResult1.test;
   });
@@ -134,9 +134,9 @@ function clipboardStore(mainWindow) {
   });
 }
 
-function dbget(db) {
+function dbget(db, query) {
   return new Promise((resolve, reject) =>
-    db.findOne({ _id: "clipboard" }, (err, documents) => {
+    db.findOne(query, (err, documents) => {
       if (err) {
         reject(err);
       } else {
@@ -153,42 +153,66 @@ function ipcClose() {
 }
 
 //クリップボード監視（画面開いていなくても実行）
-function clipboardSurveillance() {
+async function clipboardSurveillance() {
   var clipboardList = ClipboardStore.get("clipboardString");
   if (typeof clipboardList === "undefined") {
     clipboardList = [];
     ClipboardStore.set("deleteIndex", -1);
   }
 
+  var searchResult1 = await dbget(db, { _id: "clipboard" });
+  // console.log(searchResult1);
+
   var clipboardList;
-  db.findOne({ _id: "clipboard" }, (error, docs) => {
-    if (docs) {
-      clipboardList = docs.test;
-    } else {
-      db.insert(
-        { _id: "clipboard", test: [clipboard.readText()] },
-        (error, newDoc) => {}
-      );
-    }
-  });
-  console.log(clipboardList);
+  if (searchResult1) {
+    clipboardList = searchResult1.test;
+  } else {
+    db.insert(
+      { _id: "clipboard", test: [clipboard.readText()] },
+      (error, newDoc) => {}
+    );
+    clipboardList = [clipboard.readText()];
+  }
 
-  setInterval(function () {
+  db.insert(
+    { _id: "currentClipboard", value: clipboard.readText() },
+    (error, newDoc) => {}
+  );
+  clipboardList = [clipboard.readText()];
+  // db.findOne({ _id: "clipboard" }, (error, docs) => {
+  //   if (docs) {
+  //     clipboardList = docs.test;
+  //   } else {
+  //     db.insert(
+  //       { _id: "clipboard", test: [clipboard.readText()] },
+  //       (error, newDoc) => {}
+  //     );
+  //   }
+  // });
+  // console.log(clipboardList);
+
+  setInterval(async function () {
     var newString = clipboard.readText();
+    var searchResult2 = await dbget(db, { _id: "currentClipboard" });
 
-    if (clipboardList[0] != newString) {
+    if (searchResult2.value != newString) {
+      console.log(newString);
+      console.log(searchResult2.value);
       //新しいクリップボードをリストに追加する
-      clipboardList.unshift(newString);
+      var searchResult1 = await dbget(db);
+      searchResult1.test.unshift(newString);
       db.update(
         { _id: "clipboard" },
-        { $set: { test: clipboardList } },
+        { $set: { test: searchResult1.test } },
         // { test: clipboardList },
         (error, newDoc) => {}
       );
-
-      db.findOne({ _id: "clipboard" }, (error, docs) => {
-        // console.log(docs);
-      });
+      db.update(
+        { _id: "currentClipboard" },
+        { $set: { value: newString } },
+        // { test: clipboardList },
+        (error, newDoc) => {}
+      );
     }
 
     // if (clipboardList[0] != newString) {

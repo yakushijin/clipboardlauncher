@@ -1,1 +1,8 @@
-{"_id":"clipboard","test":["clipboardList","newDoc","    console.log(docs);\n    clipboardList = docs.test;\n    console.log(clipboardList);","mainWindow","clipboardList","    console.log(docs);\n    clipboardList = docs.test;\n    console.log(clipboardList);"]}
+{"_id":"clipboard","test":[]}
+{"_id":"currentClipboard","value":"currentClipboard"}
+{"_id":"clipboard","test":["clipboardString"]}
+{"_id":"currentClipboard","value":"clipboardString"}
+{"_id":"clipboard","test":["newString","clipboardString"]}
+{"_id":"currentClipboard","value":"newString"}
+{"_id":"clipboard","test":["set","newString","clipboardString"]}
+{"_id":"currentClipboard","value":"set"}
