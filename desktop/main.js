@@ -11,6 +11,15 @@ const {
 const path = require("path");
 
 const Store = require("electron-store");
+const Database = require("nedb");
+const db = new Database({ filename: "example.db" });
+db.loadDatabase((error) => {
+  if (error !== null) {
+    // console.error(error);
+  }
+
+  console.log("load database completed.");
+});
 const ClipboardStore = new Store({
   name: "clipboardData",
 });
@@ -25,6 +34,9 @@ const ClipboardOpenButton = "CommandOrControl+Shift+Z";
 const ShortcutOpenButton = "CommandOrControl+Shift+X";
 const TemplateOpenButton = "CommandOrControl+Shift+C";
 
+const ClipboardMaxCount = 5;
+const ClipboardSurveillanceTime = 1000;
+
 /*===============================
  アプリケーション起動直後の処理
  ===============================*/
@@ -32,7 +44,7 @@ app.whenReady().then(() => {
   const tray = new Tray(__dirname + "/icon/icon.png");
   var contextMenu = Menu.buildFromTemplate([
     {
-      label: "表示",
+      label: "設定",
       click: () => {
         createWindow();
       },
@@ -40,15 +52,15 @@ app.whenReady().then(() => {
     {
       label: "終了",
       click: function () {
-        mainWindow.close();
+        app.quit();
       },
     },
   ]);
   tray.setContextMenu(contextMenu);
 
   globalShortcut.register(ClipboardOpenButton, () => {
-    windowOpen(800, 400, "clipboard");
-    clipboardStore();
+    const mainWindow = windowOpen(800, 400, "clipboard");
+    clipboardStore(mainWindow);
   });
 
   globalShortcut.register(ShortcutOpenButton, () => {
@@ -65,7 +77,7 @@ app.whenReady().then(() => {
 });
 
 app.on("window-all-closed", function () {
-  if (process.platform !== "darwin") app.quit();
+  // if (process.platform !== "darwin") app.quit();
 });
 
 /*===============================
@@ -86,34 +98,132 @@ function windowOpen(width, height, fileName) {
     skipTaskbar: true, // タスクバーに表示しない
   });
   mainWindow.loadFile("public/" + fileName + ".html", ["test"]);
+  // mainWindow.close();
+  return mainWindow;
 }
 
 /*===============================
  クリップボード関連
  ===============================*/
 
-function clipboardStore() {
+function clipboardStore(mainWindow) {
+  //クリップボード一覧初回画面表示時の処理
   ipcMain.handle("getClipboard", async (event, someArgument) => {
-    const programs = ClipboardStore.get("clipboardString");
-    return programs;
+    var latestClipboardList = await nedbFindOne(db, { _id: "clipboard" });
+    return latestClipboardList.value;
+  });
+
+  //クリップボード一覧クリック時の処理
+  ipcMain.handle("clipboardSet", async (event, index) => {
+    var latestClipboardList = await nedbFindOne(db, { _id: "clipboard" });
+    var newClipboardData = latestClipboardList.value[index];
+    latestClipboardList.value.splice(index, 1);
+    await nedbUpdate(
+      db,
+      { _id: "clipboard" },
+      { value: latestClipboardList.value }
+    );
+    clipboard.writeText(newClipboardData);
+    mainWindow.close();
+    ipcClose();
+  });
+
+  //クリップボード一覧クリアボタン押下時の処理
+  ipcMain.handle("clipboardAllDelete", async (event, data) => {
+    db.update(
+      { _id: "clipboard" },
+      { $set: { value: [] } },
+      (error, newDoc) => {}
+    );
+    mainWindow.close();
+    ipcClose();
   });
 }
 
+function nedbFindOne(db, query) {
+  return new Promise((resolve, reject) =>
+    db.findOne(query, (err, documents) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(documents);
+      }
+    })
+  );
+}
+
+function nedbInsert(db, data) {
+  return new Promise((resolve, reject) =>
+    db.insert(data, (err, documents) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(documents);
+      }
+    })
+  );
+}
+
+function nedbUpdate(db, query, data) {
+  return new Promise((resolve, reject) =>
+    db.update(query, { $set: data }, (err, documents) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(documents);
+      }
+    })
+  );
+}
+
+function ipcClose() {
+  ipcMain.removeHandler("getClipboard");
+  ipcMain.removeHandler("clipboardSet");
+  ipcMain.removeHandler("clipboardAllDelete");
+}
+
 //クリップボード監視（画面開いていなくても実行）
-function clipboardSurveillance() {
-  var clipboardList = ClipboardStore.get("clipboardString");
-  if (typeof clipboardList === "undefined") {
-    clipboardList = [];
+async function clipboardSurveillance() {
+  var currentClipboard = clipboard.readText();
+  var initClipboardList = await nedbFindOne(db, { _id: "clipboard" });
+
+  //nedbに何もない場合初期化
+  if (!initClipboardList) {
+    await nedbInsert(db, { _id: "clipboard", value: [currentClipboard] });
+    await nedbInsert(db, { _id: "currentClipboard", value: currentClipboard });
   }
 
-  setInterval(function () {
+  //常駐プログラム処理
+  setInterval(async () => {
     var newString = clipboard.readText();
+    var currentClipboardList = await nedbFindOne(db, {
+      _id: "currentClipboard",
+    });
 
-    if (clipboardList[clipboardList.length - 1] != newString) {
-      clipboardList.push(newString);
-      ClipboardStore.set("clipboardString", clipboardList);
+    //最新のクリップボードに変更が加わった場合後続処理を実行する
+    if (currentClipboardList.value != newString) {
+      console.log(newString);
+      console.log(currentClipboardList.value);
+
+      //最新のリストをdbから取得
+      var newClipboardList = await nedbFindOne(db, { _id: "clipboard" });
+
+      //リストの上限数を超えている場合その分削除する
+      if (newClipboardList.value.length > ClipboardMaxCount) {
+        const deleteArray = newClipboardList.value.length - ClipboardMaxCount;
+        newClipboardList.value.splice(0, deleteArray);
+      }
+
+      //新しいクリップボードをリストに追加する
+      newClipboardList.value.unshift(newString);
+      await nedbUpdate(
+        db,
+        { _id: "clipboard" },
+        { value: newClipboardList.value }
+      );
+      await nedbUpdate(db, { _id: "currentClipboard" }, { value: newString });
     }
-  }, 500);
+  }, ClipboardSurveillanceTime);
 }
 
 /*===============================

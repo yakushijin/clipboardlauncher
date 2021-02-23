@@ -1,0 +1,21 @@
+{"_id":"clipboard","value":["  //クリップボード一覧クリック時の処理\n"]}
+{"_id":"currentClipboard","value":"  //クリップボード一覧クリック時の処理\n"}
+{"_id":"clipboard","value":[]}
+{"_id":"clipboard","value":[]}
+{"_id":"clipboard","value":[]}
+{"_id":"clipboard","value":["TEST2"]}
+{"_id":"currentClipboard","value":"TEST2"}
+{"_id":"clipboard","value":[]}
+{"_id":"clipboard","value":["event"]}
+{"_id":"currentClipboard","value":"event"}
+{"_id":"clipboard","value":["someArgument","event"]}
+{"_id":"currentClipboard","value":"someArgument"}
+{"_id":"clipboard","value":["async","someArgument","event"]}
+{"_id":"currentClipboard","value":"async"}
+{"_id":"clipboard","value":["async","event"]}
+{"_id":"clipboard","value":["someArgument","async","event"]}
+{"_id":"currentClipboard","value":"someArgument"}
+{"_id":"clipboard","value":["someArgument","async"]}
+{"_id":"clipboard","value":["event","someArgument","async"]}
+{"_id":"currentClipboard","value":"event"}
+{"_id":"clipboard","value":[]}
