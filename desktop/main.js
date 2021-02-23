@@ -107,9 +107,20 @@ function clipboardStore(mainWindow) {
     ClipboardStore.set("deleteIndex", data.index);
     clipboard.writeText(data.value);
     mainWindow.close();
-    ipcMain.removeHandler("getClipboard");
-    ipcMain.removeHandler("clipboardSet");
+    ipcClose();
   });
+
+  ipcMain.handle("clipboardAllDelete", async (event, data) => {
+    ClipboardStore.set("allDeleteFlag", true);
+    mainWindow.close();
+    ipcClose();
+  });
+}
+
+function ipcClose() {
+  ipcMain.removeHandler("getClipboard");
+  ipcMain.removeHandler("clipboardSet");
+  ipcMain.removeHandler("clipboardAllDelete");
 }
 
 //クリップボード監視（画面開いていなくても実行）
@@ -123,20 +134,31 @@ function clipboardSurveillance() {
   setInterval(function () {
     var newString = clipboard.readText();
 
-    if (clipboardList[clipboardList.length - 1] != newString) {
+    if (clipboardList[0] != newString) {
+      //リスト内の項目をクリックして閉じられてた場合リストから削除する
       var deleteIndex = ClipboardStore.get("deleteIndex");
       if (deleteIndex != ClipboardNotDeleteIndex) {
         clipboardList.splice(deleteIndex, 1);
         ClipboardStore.set("deleteIndex", ClipboardNotDeleteIndex);
       }
 
+      //リストの上限数を超えている場合その分削除する
       if (clipboardList.length > ClipboardMaxCount) {
         var deleteArray = clipboardList.length - ClipboardMaxCount;
         clipboardList.splice(0, deleteArray);
       }
 
-      clipboardList.push(newString);
-      ClipboardStore.set("clipboardString", clipboardList);
+      var allDeleteFlag = ClipboardStore.get("allDeleteFlag");
+      if (allDeleteFlag) {
+        // クリアボタンを押して閉じられてた場合新しいクリップボードのみ追加する
+        // ClipboardStore.set("clipboardString", []);
+        ClipboardStore.set("clipboardString", [newString]);
+        ClipboardStore.set("allDeleteFlag", false);
+      } else {
+        //新しいクリップボードをリストに追加する
+        clipboardList.unshift(newString);
+        ClipboardStore.set("clipboardString", clipboardList);
+      }
     }
   }, 1000);
 }
