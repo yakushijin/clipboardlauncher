@@ -35,7 +35,7 @@ const ShortcutOpenButton = "CommandOrControl+Shift+X";
 const TemplateOpenButton = "CommandOrControl+Shift+C";
 
 const ClipboardMaxCount = 5;
-const ClipboardNotDeleteIndex = -1;
+const ClipboardSurveillanceTime = 1000;
 
 /*===============================
  アプリケーション起動直後の処理
@@ -107,36 +107,66 @@ function windowOpen(width, height, fileName) {
  ===============================*/
 
 function clipboardStore(mainWindow) {
+  //クリップボード一覧初回画面表示時の処理
   ipcMain.handle("getClipboard", async (event, someArgument) => {
-    // const programs = ClipboardStore.get("clipboardString");
-    var searchResult1 = await dbget(db, { _id: "clipboard" });
-
-    return searchResult1.test;
+    var latestClipboardList = await nedbFindOne(db, { _id: "clipboard" });
+    return latestClipboardList.value;
   });
 
-  ipcMain.handle("clipboardSet", async (event, data) => {
-    ClipboardStore.set("deleteIndex", data.index);
-    clipboard.writeText(data.value);
+  //クリップボード一覧クリック時の処理
+  ipcMain.handle("clipboardSet", async (event, index) => {
+    var latestClipboardList = await nedbFindOne(db, { _id: "clipboard" });
+    var newClipboardData = latestClipboardList.value[index];
+    latestClipboardList.value.splice(index, 1);
+    await nedbUpdate(
+      db,
+      { _id: "clipboard" },
+      { value: latestClipboardList.value }
+    );
+    clipboard.writeText(newClipboardData);
     mainWindow.close();
     ipcClose();
   });
 
+  //クリップボード一覧クリアボタン押下時の処理
   ipcMain.handle("clipboardAllDelete", async (event, data) => {
-    // ClipboardStore.set("allDeleteFlag", true);
     db.update(
       { _id: "clipboard" },
-      { $set: { test: [] } },
+      { $set: { value: [] } },
       (error, newDoc) => {}
     );
-
     mainWindow.close();
     ipcClose();
   });
 }
 
-function dbget(db, query) {
+function nedbFindOne(db, query) {
   return new Promise((resolve, reject) =>
     db.findOne(query, (err, documents) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(documents);
+      }
+    })
+  );
+}
+
+function nedbInsert(db, data) {
+  return new Promise((resolve, reject) =>
+    db.insert(data, (err, documents) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(documents);
+      }
+    })
+  );
+}
+
+function nedbUpdate(db, query, data) {
+  return new Promise((resolve, reject) =>
+    db.update(query, { $set: data }, (err, documents) => {
       if (err) {
         reject(err);
       } else {
@@ -154,94 +184,46 @@ function ipcClose() {
 
 //クリップボード監視（画面開いていなくても実行）
 async function clipboardSurveillance() {
-  var clipboardList = ClipboardStore.get("clipboardString");
-  if (typeof clipboardList === "undefined") {
-    clipboardList = [];
-    ClipboardStore.set("deleteIndex", -1);
+  var currentClipboard = clipboard.readText();
+  var initClipboardList = await nedbFindOne(db, { _id: "clipboard" });
+
+  //nedbに何もない場合初期化
+  if (!initClipboardList) {
+    await nedbInsert(db, { _id: "clipboard", value: [currentClipboard] });
+    await nedbInsert(db, { _id: "currentClipboard", value: currentClipboard });
   }
 
-  var searchResult1 = await dbget(db, { _id: "clipboard" });
-  // console.log(searchResult1);
-
-  var clipboardList;
-  if (searchResult1) {
-    clipboardList = searchResult1.test;
-  } else {
-    db.insert(
-      { _id: "clipboard", test: [clipboard.readText()] },
-      (error, newDoc) => {}
-    );
-    clipboardList = [clipboard.readText()];
-  }
-
-  db.insert(
-    { _id: "currentClipboard", value: clipboard.readText() },
-    (error, newDoc) => {}
-  );
-  clipboardList = [clipboard.readText()];
-  // db.findOne({ _id: "clipboard" }, (error, docs) => {
-  //   if (docs) {
-  //     clipboardList = docs.test;
-  //   } else {
-  //     db.insert(
-  //       { _id: "clipboard", test: [clipboard.readText()] },
-  //       (error, newDoc) => {}
-  //     );
-  //   }
-  // });
-  // console.log(clipboardList);
-
-  setInterval(async function () {
+  //常駐プログラム処理
+  setInterval(async () => {
     var newString = clipboard.readText();
-    var searchResult2 = await dbget(db, { _id: "currentClipboard" });
+    var currentClipboardList = await nedbFindOne(db, {
+      _id: "currentClipboard",
+    });
 
-    if (searchResult2.value != newString) {
+    //最新のクリップボードに変更が加わった場合後続処理を実行する
+    if (currentClipboardList.value != newString) {
       console.log(newString);
-      console.log(searchResult2.value);
+      console.log(currentClipboardList.value);
+
+      //最新のリストをdbから取得
+      var newClipboardList = await nedbFindOne(db, { _id: "clipboard" });
+
+      //リストの上限数を超えている場合その分削除する
+      if (newClipboardList.value.length > ClipboardMaxCount) {
+        const deleteArray = newClipboardList.value.length - ClipboardMaxCount;
+        newClipboardList.value.splice(0, deleteArray);
+      }
+
       //新しいクリップボードをリストに追加する
-      var searchResult1 = await dbget(db);
-      searchResult1.test.unshift(newString);
-      db.update(
+      newClipboardList.value.unshift(newString);
+      await nedbUpdate(
+        db,
         { _id: "clipboard" },
-        { $set: { test: searchResult1.test } },
-        // { test: clipboardList },
-        (error, newDoc) => {}
+        { value: newClipboardList.value }
       );
-      db.update(
-        { _id: "currentClipboard" },
-        { $set: { value: newString } },
-        // { test: clipboardList },
-        (error, newDoc) => {}
-      );
+      await nedbUpdate(db, { _id: "currentClipboard" }, { value: newString });
     }
-
-    // if (clipboardList[0] != newString) {
-    //   //リスト内の項目をクリックして閉じられてた場合リストから削除する
-    //   var deleteIndex = ClipboardStore.get("deleteIndex");
-    //   if (deleteIndex != ClipboardNotDeleteIndex) {
-    //     clipboardList.splice(deleteIndex, 1);
-    //     ClipboardStore.set("deleteIndex", ClipboardNotDeleteIndex);
-    //   }
-
-    //   //リストの上限数を超えている場合その分削除する
-    //   if (clipboardList.length > ClipboardMaxCount) {
-    //     var deleteArray = clipboardList.length - ClipboardMaxCount;
-    //     clipboardList.splice(0, deleteArray);
-    //   }
-
-    //   var allDeleteFlag = ClipboardStore.get("allDeleteFlag");
-    //   if (allDeleteFlag) {
-    //     // クリアボタンを押して閉じられてた場合新しいクリップボードのみ追加する
-    //     // ClipboardStore.set("clipboardString", []);
-    //     ClipboardStore.set("clipboardString", [newString]);
-    //     ClipboardStore.set("allDeleteFlag", false);
-    //   } else {
-    //     //新しいクリップボードをリストに追加する
-    //     clipboardList.unshift(newString);
-    //     ClipboardStore.set("clipboardString", clipboardList);
-    //   }
-    // }
-  }, 1000);
+  }, ClipboardSurveillanceTime);
 }
 
 /*===============================

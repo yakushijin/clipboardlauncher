@@ -6,11 +6,7 @@ export const SimpleList = ({ listData }) => {
   return (
     <List component="nav" aria-label="secondary mailbox folders">
       {listData.map((column, index) => (
-        <ListItem
-          button
-          key={index}
-          onClick={() => clipboardSet(index, column)}
-        >
+        <ListItem button key={index} onClick={() => clipboardSet(index)}>
           {column}
         </ListItem>
       ))}
@@ -18,6 +14,6 @@ export const SimpleList = ({ listData }) => {
   );
 };
 
-function clipboardSet(index, column) {
-  ipcRenderer.invoke("clipboardSet", { index: index, value: column });
+function clipboardSet(index) {
+  ipcRenderer.invoke("clipboardSet", index);
 }
