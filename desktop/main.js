@@ -43,6 +43,7 @@ const TemplateOpenButton = "CommandOrControl+Shift+C";
 
 const ClipboardMaxCount = 5;
 const ClipboardSurveillanceTime = 1000;
+const ClipboardDispInfo = { x: 800, y: 400, autoClose: true };
 
 /*===============================
  アプリケーション起動直後の処理
@@ -80,7 +81,11 @@ app.whenReady().then(() => {
     if (DispStatus.value) {
       // nedbUpdate(InMemoryDb, { _id: "clipboardDispOpen" }, { value: false });
     } else {
-      const mainWindow = windowOpen(800, 400, "clipboard");
+      const mainWindow = windowOpen(
+        ClipboardDispInfo.x,
+        ClipboardDispInfo.y,
+        "clipboard"
+      );
       clipboardStore(mainWindow);
       nedbUpdate(InMemoryDb, { _id: "clipboardDispOpen" }, { value: true });
     }
@@ -132,8 +137,10 @@ function windowOpen(width, height, fileName) {
  ===============================*/
 
 function clipboardStore(mainWindow) {
-  var mouthPoint = screen.getCursorScreenPoint();
-  console.log(mouthPoint);
+  //画面情報取得
+  ipcMain.handle("getDispSize", (event, someArgument) => {
+    return ClipboardDispInfo;
+  });
 
   //クリップボード一覧初回画面表示時の処理
   ipcMain.handle("getClipboard", async (event, someArgument) => {
@@ -211,6 +218,7 @@ function nedbUpdate(db, query, data) {
 }
 
 function ipcClose() {
+  ipcMain.removeHandler("getDispSize");
   ipcMain.removeHandler("getClipboard");
   ipcMain.removeHandler("clipboardSet");
   ipcMain.removeHandler("clipboardAllDelete");

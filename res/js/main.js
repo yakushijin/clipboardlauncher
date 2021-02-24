@@ -1,12 +1,14 @@
 import React from "react";
 import ReactDOM from "react-dom";
 
-import { Clipboard, ClipboardWindowClose } from "./view/Clipboard";
+import { Clipboard, clipboardWindowClose } from "./view/Clipboard";
 import { Shortcut } from "./view/Shortcut";
 import { Template } from "./view/Template";
 
 function ClipboardEntry() {
   // window.addEventListener("mousemove", ClipboardWindowClose);
+  clipboardWindowClose();
+
   return (
     <div>
       <Clipboard />

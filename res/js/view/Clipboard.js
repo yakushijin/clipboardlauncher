@@ -7,9 +7,11 @@ const allDelete = () => {
   ipcRenderer.invoke("clipboardAllDelete");
 };
 
-export const Clipboard = () => {
-  window.addEventListener("mousemove", ClipboardWindowClose);
+const close = () => {
+  ipcRenderer.invoke("clipboardWindowClose");
+};
 
+export const Clipboard = () => {
   const [data, setData] = useState([]);
   console.log(data);
 
@@ -21,20 +23,27 @@ export const Clipboard = () => {
     <div>
       <SimpleList listData={data} />
       <DefaultButton name="クリア" onClick={allDelete} />
+      <DefaultButton name="閉じる" onClick={close} />
     </div>
   );
 };
 
-const ClipboardWindowClose = (event) => {
-  console.log(event.clientX, event.clientY);
-  // console.log(event);
-  if (
-    event.clientX < 6 ||
-    event.clientY < 6 ||
-    event.clientX > 792 ||
-    event.clientY > 392
-  ) {
-    console.log(2);
-    ipcRenderer.invoke("clipboardWindowClose");
-  }
-};
+export function clipboardWindowClose() {
+  const GetDispSizeType = "getDispSize";
+  const CloseDispType = "clipboardWindowClose";
+
+  ipcRenderer.invoke(GetDispSizeType).then((result) => {
+    window.addEventListener("mousemove", (event) => {
+      if (result.autoClose) {
+        if (
+          event.clientX < 6 ||
+          event.clientY < 6 ||
+          event.clientX > result.x - 10 ||
+          event.clientY > result.y - 10
+        ) {
+          ipcRenderer.invoke(CloseDispType);
+        }
+      }
+    });
+  });
+}
