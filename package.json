@@ -2,7 +2,7 @@
   "name": "electron",
   "version": "1.0.0",
   "description": "",
-  "main": "desktop/main.js",
+  "main": "desktop/bundle.js",
   "scripts": {
     "start": "electron .",
     "dev": "webpack --watch --mode development",
