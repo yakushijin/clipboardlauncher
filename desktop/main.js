@@ -41,9 +41,9 @@ const ClipboardOpenButton = "CommandOrControl+Shift+Z";
 const ShortcutOpenButton = "CommandOrControl+Shift+X";
 const TemplateOpenButton = "CommandOrControl+Shift+C";
 
-const ClipboardMaxCount = 5;
+const ClipboardMaxCount = 20;
 const ClipboardSurveillanceTime = 1000;
-const ClipboardDispInfo = { x: 800, y: 400, autoClose: true };
+const ClipboardDispInfo = { x: 400, y: 800, autoClose: true };
 
 /*===============================
  アプリケーション起動直後の処理
@@ -117,9 +117,10 @@ function windowOpen(width, height, fileName) {
   const mainWindow = new BrowserWindow({
     width: width,
     height: height,
-    x: mouthPoint.x - 10,
-    y: mouthPoint.y - 10,
+    x: mouthPoint.x - 40,
+    y: mouthPoint.y - 20,
     alwaysOnTop: true,
+    transparent: true,
     frame: false,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
