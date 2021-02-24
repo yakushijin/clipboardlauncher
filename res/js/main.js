@@ -2,7 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 
 import { Clipboard, clipboardWindowClose } from "./view/Clipboard";
-import { Shortcut } from "./view/Shortcut";
+import { Shortcut, shortcutWindowClose } from "./view/Shortcut";
 import { Template } from "./view/Template";
 
 import styled, { createGlobalStyle } from "styled-components";
@@ -43,7 +43,14 @@ if (document.getElementById("clipboardApp")) {
 }
 
 function ShortcutEntry() {
-  return <Shortcut />;
+  shortcutWindowClose();
+
+  return (
+    <React.Fragment>
+      <GlobalStyle />
+      <Shortcut />
+    </React.Fragment>
+  );
 }
 
 if (document.getElementById("shortcutApp")) {

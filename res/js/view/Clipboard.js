@@ -32,10 +32,6 @@ const ListArea = styled.div`
   }
 `;
 
-const ButtonArea = styled.div`
-  text-align: center;
-`;
-
 const allDelete = () => {
   ipcRenderer.invoke("clipboardAllDelete");
 };

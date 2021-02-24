@@ -24,9 +24,14 @@ db.loadDatabase((error) => {
   if (error !== null) {
     // console.error(error);
   }
-
-  console.log("load database completed.");
 });
+
+const ShortcutDb = new Database({ filename: "shortcut.db" });
+ShortcutDb.loadDatabase((error) => {
+  if (error !== null) {
+  }
+});
+
 const ClipboardStore = new Store({
   name: "clipboardData",
 });
@@ -44,12 +49,14 @@ const TemplateOpenButton = "CommandOrControl+Shift+C";
 const ClipboardMaxCount = 20;
 const ClipboardSurveillanceTime = 1000;
 const ClipboardDispInfo = { x: 400, y: 800, autoClose: true };
+const ShortcutDispInfo = { x: 600, y: 600, autoClose: true };
 
 /*===============================
  アプリケーション起動直後の処理
  ===============================*/
 app.whenReady().then(() => {
   nedbInsert(InMemoryDb, { _id: "clipboardDispOpen", value: false });
+  nedbInsert(InMemoryDb, { _id: "shortcutDispOpen", value: false });
 
   const tray = new Tray(__dirname + "/icon/icon.png");
   var contextMenu = Menu.buildFromTemplate([
@@ -91,9 +98,20 @@ app.whenReady().then(() => {
     }
   });
 
-  globalShortcut.register(ShortcutOpenButton, () => {
-    windowOpen(800, 400, "shortcut");
-    shortcutStore();
+  globalShortcut.register(ShortcutOpenButton, async () => {
+    const DispStatus = await nedbFindOne(InMemoryDb, {
+      _id: "shortcutDispOpen",
+    });
+    if (DispStatus.value) {
+    } else {
+      const mainWindow = windowOpen(
+        ShortcutDispInfo.x,
+        ShortcutDispInfo.y,
+        "shortcut"
+      );
+      shortcutStore(mainWindow);
+      nedbUpdate(InMemoryDb, { _id: "shortcutDispOpen" }, { value: true });
+    }
   });
 
   globalShortcut.register(TemplateOpenButton, () => {
@@ -275,9 +293,23 @@ async function clipboardSurveillance() {
  ショートカット関連
  ===============================*/
 
-function shortcutStore() {
-  ShortcutStore.set("programs", { id: 1, name: "TEST" });
-  const programs = ShortcutStore.get("programs");
+function shortcutStore(mainWindow) {
+  //画面情報取得
+  ipcMain.handle("getshortcutDispSize", (event, someArgument) => {
+    return ShortcutDispInfo;
+  });
+
+  //閉じるボタン
+  ipcMain.handle("shortcutWindowClose", async (event) => {
+    mainWindow.close();
+    shortcutipcClose();
+  });
+}
+
+function shortcutipcClose() {
+  ipcMain.removeHandler("getshortcutDispSize");
+  ipcMain.removeHandler("shortcutWindowClose");
+  nedbUpdate(InMemoryDb, { _id: "shortcutDispOpen" }, { value: false });
 }
 
 /*===============================
