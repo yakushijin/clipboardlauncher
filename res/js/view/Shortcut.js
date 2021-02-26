@@ -72,6 +72,7 @@ const Item = ({ listData, setData }) => {
           <BasicChip
             data={
               <React.Fragment>
+                <TypeIcon data={column.pathString} />
                 <ItemUnit onClick={() => pathClick(column.pathString)}>
                   {column.dispName}
                 </ItemUnit>
@@ -95,6 +96,17 @@ const Item = ({ listData, setData }) => {
 
 const AddButtonArea = styled.div`
   text-align: right;
+`;
+
+const ItemIcon = styled.div.attrs((props) => ({
+  backgroundColor: props.iconColor,
+}))`
+  display: inline-block;
+  border-radius: 50%;
+  height: 16px;
+  width: 16px;
+  cursor: move;
+  background: ${(props) => props.backgroundColor};
 `;
 
 const ItemArea = styled.div`
@@ -122,5 +134,35 @@ const EditIconUnit = styled.div`
 `;
 
 function pathClick(data) {
-  ipcRenderer.invoke("shortcutOpenDirectory", data);
+  var dataSet = { path: data, type: PathTypeCheck(data) };
+  ipcRenderer.invoke("shortcutOpenDirectory", dataSet);
 }
+
+const PathTypeCheck = (data) => {
+  const string = data.slice(0, 4);
+  var type;
+  if (string === "http") {
+    type = "web";
+  } else if (string.slice(0, 1) === "/") {
+    type = "local";
+  } else {
+    alert("no");
+  }
+  return type;
+};
+
+const TypeIcon = ({ data }) => {
+  var iconColor;
+  switch (PathTypeCheck(data)) {
+    case "web":
+      iconColor = "#448";
+      break;
+    case "local":
+      iconColor = "#844";
+      break;
+    case "no":
+      alert("no");
+      break;
+  }
+  return <ItemIcon iconColor={iconColor} />;
+};

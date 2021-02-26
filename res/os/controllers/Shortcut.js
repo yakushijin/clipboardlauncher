@@ -1,7 +1,7 @@
 import { ipcMain } from "electron";
 import { nedbFindOne, nedbInsert, nedbUpdate } from "../dao/Transaction";
 import { windowOpen } from "../common/Window";
-import { openDirectory } from "../common/FileSystem";
+import { openFileOrDirectory, openBrowser } from "../common/FileSystem";
 const ShortcutDispInfo = { x: 600, y: 600, autoClose: true };
 
 export async function shortcutInit(InMemoryDb, db) {
@@ -56,7 +56,11 @@ async function shortcutStore(mainWindow, InMemoryDb, db) {
   ipcMain.handle("shortcutOpenDirectory", async (event, data) => {
     await mainWindow.close();
     shortcutipcClose(InMemoryDb);
-    openDirectory(data);
+    if (data.type === "local") {
+      openFileOrDirectory(data.path);
+    } else if (data.type === "web") {
+      openBrowser(data.path);
+    }
   });
 
   //閉じるボタン
