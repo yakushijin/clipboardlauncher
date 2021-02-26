@@ -31,15 +31,15 @@ export const Shortcut = () => {
       </HeaderArea>
       {/* <ScrollableTabsButtonAuto />; */}
       <Item listData={data} setData={setData} />
-      <BaseModal
-        OpenIcon={BaseFab}
-        column={""}
-        index={""}
-        list={data}
-        setData={setData}
-      />
-
-      {/* <BaseFab Icon={DataAddIcon} onClick={() => alert()} /> */}
+      <AddButtonArea>
+        <BaseModal
+          newFlag={true}
+          column={""}
+          index={""}
+          list={data}
+          setData={setData}
+        />
+      </AddButtonArea>
     </React.Fragment>
   );
 };
@@ -77,7 +77,7 @@ const Item = ({ listData, setData }) => {
                 </ItemUnit>
                 <EditIconUnit>
                   <BaseModal
-                    OpenIcon={DataEditIcon}
+                    newFlag={false}
                     column={column}
                     index={index}
                     list={listData}
@@ -92,6 +92,10 @@ const Item = ({ listData, setData }) => {
     </React.Fragment>
   );
 };
+
+const AddButtonArea = styled.div`
+  text-align: right;
+`;
 
 const ItemArea = styled.div`
   cursor: move;

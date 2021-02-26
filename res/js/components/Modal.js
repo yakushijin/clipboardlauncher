@@ -3,12 +3,13 @@ import Button from "@material-ui/core/Button";
 import Dialog from "@material-ui/core/Dialog";
 import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
-import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
+import { DataEditIcon } from "./Icon";
+import { BaseFab } from "./Fab";
 
 import { BaseTextBox } from "./TextBox";
 
-export function BaseModal({ OpenIcon, column, index, list, setData }) {
+export function BaseModal({ newFlag, column, index, list, setData }) {
   const [open, setOpen] = React.useState(false);
   const [dispName, dispNameChange] = React.useState(column.dispName);
   const [pathString, pathStringChange] = React.useState(column.pathString);
@@ -22,18 +23,22 @@ export function BaseModal({ OpenIcon, column, index, list, setData }) {
   };
 
   const AddData = () => {
-    var array = list.concat();
-    array.push({ dispName: dispName, pathString: pathString });
-    console.log(array);
-    setData(array);
-    ipcRenderer.invoke("updateShortcut", array).then((result) => {
-      handleClose();
-    });
+    list.push({ dispName: dispName, pathString: pathString });
+    DataSet(list);
   };
 
   const UpdateData = () => {
+    list[index] = { dispName: dispName, pathString: pathString };
+    DataSet(list);
+  };
+
+  const DeleteData = () => {
+    list.splice(index, 1);
+    DataSet(list);
+  };
+
+  const DataSet = (list) => {
     var array = list.concat();
-    array[index] = { dispName: dispName, pathString: pathString };
     setData(array);
     ipcRenderer.invoke("updateShortcut", array).then((result) => {
       handleClose();
@@ -42,14 +47,13 @@ export function BaseModal({ OpenIcon, column, index, list, setData }) {
 
   return (
     <div>
-      <OpenIcon onClick={handleClickOpen} />
-      <Dialog
-        open={open}
-        onClose={handleClose}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-      >
-        <DialogTitle id="alert-dialog-title">{"変更"}</DialogTitle>
+      {newFlag ? (
+        <BaseFab onClick={handleClickOpen} />
+      ) : (
+        <DataEditIcon onClick={handleClickOpen} />
+      )}
+      <Dialog open={open} onClose={handleClose}>
+        <DialogTitle>{newFlag ? "新規作成" : "変更"}</DialogTitle>
         <DialogContent>
           <BaseTextBox
             name={"dispName"}
@@ -63,12 +67,14 @@ export function BaseModal({ OpenIcon, column, index, list, setData }) {
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={AddData} color="primary">
-            更新
-          </Button>
-          <Button onClick={UpdateData} color="primary">
-            削除
-          </Button>
+          {newFlag ? (
+            <Button onClick={AddData}>作成</Button>
+          ) : (
+            <React.Fragment>
+              <Button onClick={UpdateData}>更新</Button>
+              <Button onClick={DeleteData}>削除</Button>
+            </React.Fragment>
+          )}
           <Button onClick={handleClose} color="primary" autoFocus>
             キャンセル
           </Button>
