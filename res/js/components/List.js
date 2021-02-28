@@ -21,3 +21,16 @@ export const SimpleList = ({ listData }) => {
 function clipboardSet(index) {
   ipcRenderer.invoke("clipboardSet", index);
 }
+
+export const TemplateList = ({ listData }) => {
+  return (
+    <List component="nav" aria-label="secondary mailbox folders">
+      {listData.map((column, index) => (
+        <React.Fragment>
+          <ListItem key={index}>{column.listName}</ListItem>
+          <Divider />
+        </React.Fragment>
+      ))}
+    </List>
+  );
+};

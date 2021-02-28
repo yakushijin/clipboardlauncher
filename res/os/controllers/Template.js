@@ -1,9 +1,9 @@
 import { ipcMain } from "electron";
-import { nedbFindOne, nedbInsert, nedbUpdate } from "../dao/Dao";
+import { nedbFindOne, nedbInsert, nedbUpdate } from "../dao/Transaction";
 import { windowOpen } from "../common/Window";
 const TemplateDispInfo = { x: 600, y: 600, autoClose: true };
 
-export async function templateInit(InMemoryDb) {
+export async function templateInit(InMemoryDb, db) {
   const DispStatus = await nedbFindOne(InMemoryDb, {
     _id: "templateDispOpen",
   });
@@ -14,9 +14,57 @@ export async function templateInit(InMemoryDb) {
       TemplateDispInfo.y,
       "template"
     );
-    templateStore(mainWindow, InMemoryDb);
+    templateStore(mainWindow, InMemoryDb, db);
     nedbUpdate(InMemoryDb, { _id: "templateDispOpen" }, { value: true });
   }
 }
 
-function templateStore(mainWindow, InMemoryDb) {}
+async function templateStore(mainWindow, InMemoryDb, db) {
+  var initList = await nedbFindOne(db, { _id: "template" });
+
+  const Date = dateGet();
+
+  //nedbに何もない場合初期化
+  if (!initList) {
+    await nedbInsert(db, {
+      _id: "template",
+      value: [{ listId: "t" + Date, listName: "aaa" }],
+    });
+  }
+
+  //画面情報取得
+  ipcMain.handle("gettemplateDispSize", (event, someArgument) => {
+    return TemplateDispInfo;
+  });
+
+  //ショートカット初回画面表示時の処理
+  ipcMain.handle("gettemplateClipboard", async (event, someArgument) => {
+    var latestClipboardList = await nedbFindOne(db, { _id: "template" });
+    return latestClipboardList.value;
+  });
+
+  //閉じるボタン
+  ipcMain.handle("templateWindowClose", async (event) => {
+    mainWindow.close();
+    templateClose(InMemoryDb);
+  });
+}
+
+function templateClose(InMemoryDb) {
+  ipcMain.removeHandler("gettemplateDispSize");
+  ipcMain.removeHandler("templateWindowClose");
+  nedbUpdate(InMemoryDb, { _id: "templateDispOpen" }, { value: false });
+}
+
+function dateGet() {
+  var date = new Date();
+  return (
+    date.getFullYear() +
+    ("0" + (date.getMonth() + 1)).slice(-2) +
+    ("0" + date.getDate()).slice(-2) +
+    ("0" + date.getHours()).slice(-2) +
+    ("0" + date.getMinutes()).slice(-2) +
+    ("0" + date.getSeconds()).slice(-2) +
+    date.getMilliseconds()
+  );
+}
