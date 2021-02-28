@@ -7,6 +7,10 @@ import { Template } from "./view/Template";
 
 import styled, { createGlobalStyle } from "styled-components";
 
+import { DndPage } from "./view/DndPage";
+import { DndProvider } from "react-dnd";
+import { HTML5Backend } from "react-dnd-html5-backend";
+
 const GlobalStyle = createGlobalStyle`
   html{
     border-top: 4px solid #d8dcdc;
@@ -63,4 +67,17 @@ function TemplateEntry() {
 
 if (document.getElementById("templateApp")) {
   ReactDOM.render(<TemplateEntry />, document.getElementById("templateApp"));
+}
+
+function Dndtest() {
+  return (
+    <DndProvider backend={HTML5Backend}>
+      <GlobalStyle />
+      <DndPage />
+    </DndProvider>
+  );
+}
+
+if (document.getElementById("dndtest")) {
+  ReactDOM.render(<Dndtest />, document.getElementById("dndtest"));
 }
