@@ -28,7 +28,23 @@ async function templateStore(mainWindow, InMemoryDb, db) {
   if (!initList) {
     await nedbInsert(db, {
       _id: "template",
-      value: [{ listId: "t" + Date, listName: "aaa" }],
+      value: [
+        { listId: "t" + Date, listName: "aaa" },
+        { listId: "t2" + Date, listName: "bbb" },
+        { listId: "t3" + Date, listName: "ccc" },
+      ],
+    });
+    await nedbInsert(db, {
+      _id: "t" + Date,
+      value: "contents",
+    });
+    await nedbInsert(db, {
+      _id: "t2" + Date,
+      value: "あああああ",
+    });
+    await nedbInsert(db, {
+      _id: "t3" + Date,
+      value: "！？",
     });
   }
 
@@ -43,6 +59,12 @@ async function templateStore(mainWindow, InMemoryDb, db) {
     return latestClipboardList.value;
   });
 
+  //ショートカット初回画面表示時の処理
+  ipcMain.handle("templateGet", async (event, id) => {
+    var latestClipboardList = await nedbFindOne(db, { _id: id });
+    return latestClipboardList.value;
+  });
+
   //閉じるボタン
   ipcMain.handle("templateWindowClose", async (event) => {
     mainWindow.close();
@@ -52,6 +74,8 @@ async function templateStore(mainWindow, InMemoryDb, db) {
 
 function templateClose(InMemoryDb) {
   ipcMain.removeHandler("gettemplateDispSize");
+  ipcMain.removeHandler("gettemplateClipboard");
+  ipcMain.removeHandler("templateGet");
   ipcMain.removeHandler("templateWindowClose");
   nedbUpdate(InMemoryDb, { _id: "templateDispOpen" }, { value: false });
 }

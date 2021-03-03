@@ -22,15 +22,26 @@ function clipboardSet(index) {
   ipcRenderer.invoke("clipboardSet", index);
 }
 
-export const TemplateList = ({ listData }) => {
+export const TemplateList = ({ listData, setContentsData }) => {
   return (
     <List component="nav" aria-label="secondary mailbox folders">
       {listData.map((column, index) => (
         <React.Fragment>
-          <ListItem key={index}>{column.listName}</ListItem>
+          <ListItem
+            key={index}
+            onClick={() => templateGet(column.listId, setContentsData)}
+          >
+            {column.listName}
+          </ListItem>
           <Divider />
         </React.Fragment>
       ))}
     </List>
   );
 };
+
+function templateGet(id, setContentsData) {
+  ipcRenderer.invoke("templateGet", id).then((result) => {
+    setContentsData(result);
+  });
+}

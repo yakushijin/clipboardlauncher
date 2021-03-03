@@ -29,6 +29,7 @@ const AddButtonArea = styled.div`
 
 export const Template = () => {
   const [data, setData] = useState([]);
+  const [ContentsData, setContentsData] = useState("");
 
   if (data.length == 0) {
     ipcRenderer.invoke("gettemplateClipboard").then((result) => {
@@ -46,7 +47,7 @@ export const Template = () => {
       </HeaderArea>
       <FlexBox>
         <ListBack>
-          <TemplateList listData={data} />
+          <TemplateList listData={data} setContentsData={setContentsData} />
           <AddButtonArea>
             <BaseModal
               newFlag={true}
@@ -57,7 +58,7 @@ export const Template = () => {
             />
           </AddButtonArea>
         </ListBack>
-        <TextBack></TextBack>
+        <TextBack>{ContentsData}</TextBack>
       </FlexBox>
     </React.Fragment>
   );
