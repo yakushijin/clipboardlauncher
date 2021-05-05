@@ -18,7 +18,7 @@ const GlobalStyle = createGlobalStyle`
     overflow:hidden;
   }
   body {
-    background:-webkit-linear-gradient(top, #f5f5f5,#a1a1a1);
+    background:#fff;
     color:#000;
     margin:0;
     padding:0;

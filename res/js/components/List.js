@@ -2,13 +2,26 @@ import React from "react";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import Divider from "@material-ui/core/Divider";
+import { makeStyles } from "@material-ui/core/styles";
+
+const useStyles = makeStyles(() => ({
+  root: {
+    padding: 2,
+  },
+}));
 
 export const SimpleList = ({ listData }) => {
+  const classes = useStyles();
   return (
     <List component="nav" aria-label="secondary mailbox folders">
       {listData.map((column, index) => (
         <React.Fragment>
-          <ListItem button key={index} onClick={() => clipboardSet(index)}>
+          <ListItem
+            className={classes.root}
+            button
+            key={index}
+            onClick={() => clipboardSet(index)}
+          >
             {column}
           </ListItem>
           <Divider />
