@@ -4,12 +4,11 @@ import { initDataGet, dataSet } from "../common/ProcessInterface";
 import { HeaderArea, TitleArea, IconArea } from "../components/Header";
 import { DataEditIcon, DispCloseIcon, DataAddIcon } from "../components/Icon";
 import styled from "styled-components";
-import { BaseModal } from "../components/Modal";
+import { TemplateModal } from "../components/Modal";
 
 const FlexBox = styled.div`
   color: #444;
   display: flex;
-  box-shadow: 0 0 8px gray;
 `;
 
 const ListBack = styled.div`
@@ -20,6 +19,8 @@ const ListBack = styled.div`
 const TextBack = styled.div`
   width: 70%;
   height: 90vh;
+  padding: 10px;
+  white-space: pre-wrap;
   border-left: solid 2px #000;
 `;
 
@@ -47,14 +48,21 @@ export const Template = () => {
       </HeaderArea>
       <FlexBox>
         <ListBack>
-          <TemplateList listData={data} setContentsData={setContentsData} />
+          <TemplateList
+            listData={data}
+            setData={setData}
+            contentsData={ContentsData}
+            setContentsData={setContentsData}
+          />
           <AddButtonArea>
-            <BaseModal
+            <TemplateModal
               newFlag={true}
               column={""}
               index={""}
               list={data}
               setData={setData}
+              contentsData={ContentsData}
+              setContentsData={setContentsData}
             />
           </AddButtonArea>
         </ListBack>

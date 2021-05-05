@@ -1,7 +1,7 @@
 import { ipcMain } from "electron";
 import { nedbFindOne, nedbInsert, nedbUpdate } from "../dao/Transaction";
 import { windowOpen } from "../common/Window";
-const TemplateDispInfo = { x: 600, y: 600, autoClose: true };
+const TemplateDispInfo = { x: 1000, y: 600, autoClose: true };
 
 export async function templateInit(InMemoryDb, db) {
   const DispStatus = await nedbFindOne(InMemoryDb, {
@@ -63,6 +63,18 @@ async function templateStore(mainWindow, InMemoryDb, db) {
   ipcMain.handle("templateGet", async (event, id) => {
     var latestClipboardList = await nedbFindOne(db, { _id: id });
     return latestClipboardList.value;
+  });
+
+  //更新
+  ipcMain.handle("updateTemplate", (event, data) => {
+    db.update(
+      { _id: "template" },
+      { $set: { value: data.list } },
+      (error, newDoc) => {}
+    );
+    nedbInsert(db, data.contents);
+
+    return "ok";
   });
 
   //閉じるボタン
