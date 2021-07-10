@@ -3,7 +3,7 @@ import ReactDOM from "react-dom";
 
 import { Clipboard, clipboardWindowClose } from "./view/Clipboard";
 import { Shortcut, shortcutWindowClose } from "./view/Shortcut";
-import { Template } from "./view/Template";
+import { Template, templateWindowClose } from "./view/Template";
 
 import styled, { createGlobalStyle } from "styled-components";
 
@@ -18,7 +18,7 @@ const GlobalStyle = createGlobalStyle`
     overflow:hidden;
   }
   body {
-    background:-webkit-linear-gradient(top, #f5f5f5,#a1a1a1);
+    background:#fff;
     color:#000;
     margin:0;
     padding:0;
@@ -58,7 +58,13 @@ if (document.getElementById("shortcutApp")) {
 }
 
 function TemplateEntry() {
-  return <Template />;
+  templateWindowClose();
+  return (
+    <React.Fragment>
+      <GlobalStyle />
+      <Template />
+    </React.Fragment>
+  );
 }
 
 if (document.getElementById("templateApp")) {

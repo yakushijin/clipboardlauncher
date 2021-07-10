@@ -9,6 +9,7 @@ import {
 import path from "path";
 // const path = require("path");
 import { shortcutInit } from "../controllers/Shortcut";
+import { templateInit } from "../controllers/Template";
 import { clipboardInit, clipboardSurveillance } from "../controllers/Clipboard";
 
 export function trayInit() {
@@ -44,7 +45,7 @@ export function keyboardSetting(DbSet) {
   });
 
   globalShortcut.register(TemplateOpenButton, () => {
-    shortcutInit(DbSet.InMemoryDb, DbSet.TemplateDb);
+    templateInit(DbSet.InMemoryDb, DbSet.TemplateDb);
   });
 }
 
