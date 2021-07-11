@@ -7,6 +7,8 @@ import styled from "styled-components";
 import { BasicChip } from "../components/Chip";
 import { BaseModal } from "../components/Modal";
 import { BaseFab } from "../components/Fab";
+import { initDataGet, dataSet } from "../common/ProcessInterface";
+import { FeatureApi, CommonApi } from "../const/ShortcutConst";
 
 const close = () => {
   ipcRenderer.invoke("shortcutWindowClose");
@@ -16,10 +18,14 @@ export const Shortcut = () => {
   const [data, setData] = useState([]);
 
   if (data.length == 0) {
-    ipcRenderer.invoke("getShortcutClipboard").then((result) => {
+    ipcRenderer.invoke(CommonApi.getDbData).then((result) => {
       setData(result);
     });
   }
+
+  // if (data.length == 0) {
+  //   initDataGet(setData);
+  // }
 
   return (
     <React.Fragment>
@@ -45,10 +51,10 @@ export const Shortcut = () => {
 };
 
 export function shortcutWindowClose() {
-  const GetDispSizeType = "shortcutgetDispSize";
-  const CloseDispType = "shortcutwindowClose";
+  const GetDispSizeType = "getDispSize";
+  const CloseDispType = "windowClose";
 
-  ipcRenderer.invoke(GetDispSizeType).then((result) => {
+  ipcRenderer.invoke(CommonApi.getDispSize).then((result) => {
     window.addEventListener("mousemove", (event) => {
       if (result.autoClose) {
         if (
@@ -57,7 +63,7 @@ export function shortcutWindowClose() {
           event.clientX > result.x - 20 ||
           event.clientY > result.y - 20
         ) {
-          ipcRenderer.invoke(CloseDispType);
+          ipcRenderer.invoke(CommonApi.windowClose);
         }
       }
     });

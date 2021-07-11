@@ -1,107 +1,58 @@
 import { ipcMain, clipboard } from "electron";
 import { nedbFindOne, nedbInsert, nedbUpdate } from "../dao/Transaction";
-import { BaseTest } from "../hard/Window";
+import { Window } from "../hard/Window";
 
-const ClipboardMaxCount = 20;
-const ClipboardSurveillanceTime = 1000;
-const ClipboardDispInfo = { x: 400, y: 800, autoClose: true };
-const ClipboardApi = {
-  getClipboard: "getClipboard",
+const FeatureName = "clipboard";
+
+const FeatureApi = {
   clipboardSet: "clipboardSet",
   clipboardAllDelete: "clipboardAllDelete",
 };
 
+const WindowSize = {
+  x: 400,
+  y: 800,
+};
+
+const WindowAutoClose = true;
+
 //キーボードからの呼び出し処理
 export async function clipboardInit(InMemoryDb, db) {
-  const base = new BaseTest(
-    400,
-    800,
-    true,
-    "clipboard",
+  const window = new Window(
+    WindowSize,
+    WindowAutoClose,
+    FeatureName,
     InMemoryDb,
     db,
-    ClipboardApi
+    FeatureApi
   );
 
-  base.commonApi();
-  clipboardStore(base.window(), InMemoryDb, db);
+  window.commonApiSet();
+  featureApiSet(db);
+  window.open();
 }
 
 //各イベント登録
-function clipboardStore(mainWindow, InMemoryDb, db) {
-  //クリップボード一覧初回画面表示時の処理
-  ipcMain.handle(ClipboardApi.getClipboard, async (event, someArgument) => {
-    var latestClipboardList = await nedbFindOne(db, { _id: "clipboard" });
-    return latestClipboardList.value;
-  });
-
+function featureApiSet(db) {
   //クリップボード一覧クリック時の処理
-  ipcMain.handle(ClipboardApi.clipboardSet, async (event, index) => {
-    var latestClipboardList = await nedbFindOne(db, { _id: "clipboard" });
+  ipcMain.handle(FeatureApi.clipboardSet, async (event, index) => {
+    var latestClipboardList = await nedbFindOne(db, { _id: FeatureName });
     var newClipboardData = latestClipboardList.value[index];
     latestClipboardList.value.splice(index, 1);
     await nedbUpdate(
       db,
-      { _id: "clipboard" },
+      { _id: FeatureName },
       { value: latestClipboardList.value }
     );
     clipboard.writeText(newClipboardData);
-    mainWindow.close();
-    ipcClose(InMemoryDb);
   });
 
   //クリップボード一覧クリアボタン押下時の処理
-  ipcMain.handle(ClipboardApi.clipboardAllDelete, async (event, data) => {
+  ipcMain.handle(FeatureApi.clipboardAllDelete, async (event, data) => {
     db.update(
-      { _id: "clipboard" },
+      { _id: FeatureName },
       { $set: { value: [] } },
       (error, newDoc) => {}
     );
-    mainWindow.close();
-    ipcClose(InMemoryDb);
   });
-}
-
-//クリップボード監視（画面開いていなくても実行）
-export async function clipboardSurveillance(db) {
-  var currentClipboard = clipboard.readText();
-  var initClipboardList = await nedbFindOne(db, { _id: "clipboard" });
-
-  //nedbに何もない場合初期化
-  if (!initClipboardList) {
-    await nedbInsert(db, { _id: "clipboard", value: [currentClipboard] });
-    await nedbInsert(db, { _id: "currentClipboard", value: currentClipboard });
-  }
-
-  //常駐プログラム処理
-  setInterval(async () => {
-    var newString = clipboard.readText();
-    var currentClipboardList = await nedbFindOne(db, {
-      _id: "currentClipboard",
-    });
-
-    //最新のクリップボードに変更が加わった場合後続処理を実行する
-    if (currentClipboardList.value != newString) {
-      console.log(newString);
-      console.log(currentClipboardList.value);
-
-      //最新のリストをdbから取得
-      var newClipboardList = await nedbFindOne(db, { _id: "clipboard" });
-
-      //リストの上限数を超えている場合その分削除する
-      if (newClipboardList.value.length > ClipboardMaxCount) {
-        const deleteArray = newClipboardList.value.length - ClipboardMaxCount;
-        newClipboardList.value.splice(0, deleteArray);
-      }
-
-      //新しいクリップボードをリストに追加する
-      newClipboardList.value.unshift(newString);
-      await nedbUpdate(
-        db,
-        { _id: "clipboard" },
-        { value: newClipboardList.value }
-      );
-      await nedbUpdate(db, { _id: "currentClipboard" }, { value: newString });
-    }
-  }, ClipboardSurveillanceTime);
 }

@@ -5,6 +5,7 @@ import { HeaderArea, TitleArea, IconArea } from "../components/Header";
 import { DataEditIcon, DispCloseIcon, DataAddIcon } from "../components/Icon";
 import styled from "styled-components";
 import { TemplateModal } from "../components/Modal";
+import { FeatureApi, CommonApi } from "../const/TemplateConst";
 
 const FlexBox = styled.div`
   color: #444;
@@ -33,10 +34,14 @@ export const Template = () => {
   const [ContentsData, setContentsData] = useState("");
 
   if (data.length == 0) {
-    ipcRenderer.invoke("gettemplateClipboard").then((result) => {
+    ipcRenderer.invoke(CommonApi.getDbData).then((result) => {
       setData(result);
     });
   }
+
+  // if (data.length == 0) {
+  //   initDataGet(setData);
+  // }
 
   return (
     <React.Fragment>
@@ -73,10 +78,10 @@ export const Template = () => {
 };
 
 export function templateWindowClose() {
-  const GetDispSizeType = "templategetDispSize";
-  const CloseDispType = "templatewindowClose";
+  const GetDispSizeType = "getDispSize";
+  const CloseDispType = "windowClose";
 
-  ipcRenderer.invoke(GetDispSizeType).then((result) => {
+  ipcRenderer.invoke(CommonApi.getDispSize).then((result) => {
     window.addEventListener("mousemove", (event) => {
       if (result.autoClose) {
         if (
@@ -85,7 +90,7 @@ export function templateWindowClose() {
           event.clientX > result.x - 20 ||
           event.clientY > result.y - 20
         ) {
-          ipcRenderer.invoke(CloseDispType);
+          ipcRenderer.invoke(CommonApi.windowClose);
         }
       }
     });

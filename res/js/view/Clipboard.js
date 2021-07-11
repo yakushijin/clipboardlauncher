@@ -4,6 +4,7 @@ import { DefaultButton } from "../components/Button";
 import { HeaderArea, TitleArea, IconArea } from "../components/Header";
 import { ClearListIcon, DispCloseIcon } from "../components/Icon";
 import { initDataGet, dataSet } from "../common/ProcessInterface";
+import { FeatureApi, CommonApi } from "../const/ClipboardConst";
 
 import styled from "styled-components";
 
@@ -34,18 +35,25 @@ const ListArea = styled.div`
 
 const allDelete = () => {
   ipcRenderer.invoke("clipboardAllDelete");
+  ipcRenderer.invoke("clipboardwindowClose");
 };
 
 const close = () => {
-  ipcRenderer.invoke("clipboardWindowClose");
+  ipcRenderer.invoke("clipboardwindowClose");
 };
 
 export const Clipboard = () => {
   const [data, setData] = useState([]);
   console.log(data);
 
+  // if (data.length == 0) {
+  //   initDataGet(setData);
+  // }
+
   if (data.length == 0) {
-    initDataGet(setData);
+    ipcRenderer.invoke(CommonApi.getDbData).then((result) => {
+      setData(result);
+    });
   }
 
   return (
@@ -65,10 +73,10 @@ export const Clipboard = () => {
 };
 
 export function clipboardWindowClose() {
-  const GetDispSizeType = "clipboardgetDispSize";
-  const CloseDispType = "clipboardwindowClose";
+  const GetDispSizeType = "getDispSize";
+  const CloseDispType = "windowClose";
 
-  ipcRenderer.invoke(GetDispSizeType).then((result) => {
+  ipcRenderer.invoke(CommonApi.getDispSize).then((result) => {
     window.addEventListener("mousemove", (event) => {
       if (result.autoClose) {
         if (
@@ -77,7 +85,7 @@ export function clipboardWindowClose() {
           event.clientX > result.x - 20 ||
           event.clientY > result.y - 20
         ) {
-          ipcRenderer.invoke(CloseDispType);
+          ipcRenderer.invoke(CommonApi.windowClose);
         }
       }
     });

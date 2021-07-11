@@ -1,25 +1,25 @@
 import { nedbFindOne, nedbInsert, nedbUpdate } from "../dao/Transaction";
-
 import { ipcMain, BrowserWindow, screen } from "electron";
 import path from "path";
 
-export class BaseTest {
-  constructor(x, y, autoClose, id, InMemoryDb, db, apiList) {
+export class Window {
+  constructor(windowSize, autoClose, id, InMemoryDb, db, apiList) {
     this.id = id;
-    this.x = x;
-    this.y = y;
+    this.x = windowSize.x;
+    this.y = windowSize.y;
     this.autoClose = autoClose;
     this.dispOpen = id + "DispOpen";
     this.InMemoryDb = InMemoryDb;
     this.db = db;
     this.apiList = apiList;
     this.commonApiList = {
+      getDbData: id + "getDbData",
       getDispSize: id + "getDispSize",
       windowClose: id + "windowClose",
     };
   }
 
-  window() {
+  open() {
     //ウィンドウが開いている場合は新たに開かない
     const DispStatus = nedbFindOne(this.InMemoryDb, {
       _id: this.dispOpen,
@@ -44,32 +44,34 @@ export class BaseTest {
       nedbUpdate(this.InMemoryDb, { _id: this.dispOpen }, { value: true });
 
       this.mainWindow = mainWindow;
-
-      return mainWindow;
     }
   }
 
-  commonApi() {
+  commonApiSet() {
+    //初回データ取得
+    ipcMain.handle(
+      this.commonApiList.getDbData,
+      async (event, someArgument) => {
+        var latestClipboardList = await nedbFindOne(this.db, { _id: this.id });
+        return latestClipboardList.value;
+      }
+    );
+
+    //ウィンドウ情報の取得
     ipcMain.handle(this.commonApiList.getDispSize, (event, someArgument) => {
       return { x: this.x, y: this.y, autoClose: this.autoClose };
     });
 
-    //クリップボード一覧閉じるボタン押下時の処理
+    //ウィンドウを閉じる
     ipcMain.handle(this.commonApiList.windowClose, async (event) => {
       this.mainWindow.close();
-      this.dispClose();
+      Object.keys(this.apiList).forEach((key) =>
+        ipcMain.removeHandler(this.apiList[key])
+      );
+      Object.keys(this.commonApiList).forEach((key) =>
+        ipcMain.removeHandler(this.commonApiList[key])
+      );
+      nedbUpdate(this.InMemoryDb, { _id: this.dispOpen }, { value: false });
     });
-  }
-
-  dispClose() {
-    Object.keys(this.apiList).forEach((key) =>
-      ipcMain.removeHandler(this.apiList[key])
-    );
-    Object.keys(this.commonApiList).forEach((key) =>
-      ipcMain.removeHandler(this.commonApiList[key])
-    );
-    // ipcMain.removeHandler("getDispSize");
-    // ipcMain.removeHandler("clipboardWindowClose");
-    nedbUpdate(this.InMemoryDb, { _id: this.dispOpen }, { value: false });
   }
 }

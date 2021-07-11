@@ -1,7 +1,7 @@
 import React from "react";
 
 export function initDataGet(setData) {
-  ipcRenderer.invoke("getClipboard").then((result) => {
+  ipcRenderer.invoke("getDbData").then((result) => {
     setData(result);
     console.log(1);
   });

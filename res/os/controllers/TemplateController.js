@@ -1,37 +1,43 @@
 import { ipcMain } from "electron";
 import { nedbFindOne, nedbInsert, nedbUpdate } from "../dao/Transaction";
-import { BaseTest } from "../hard/Window";
+import { Window } from "../hard/Window";
 
-const TemplateDispInfo = { x: 1000, y: 600, autoClose: true };
-const TemplateApi = {
-  gettemplateClipboard: "gettemplateClipboard",
-  templateGet: "templateGet",
+const FeatureName = "template";
+
+const FeatureApi = {
   updateTemplate: "updateTemplate",
 };
 
+const WindowSize = {
+  x: 1000,
+  y: 600,
+};
+
+const WindowAutoClose = true;
+
 export async function templateInit(InMemoryDb, db) {
-  const base = new BaseTest(
-    1000,
-    600,
-    true,
-    "template",
+  const window = new Window(
+    WindowSize,
+    WindowAutoClose,
+    FeatureName,
     InMemoryDb,
     db,
-    TemplateApi
+    FeatureApi
   );
-  base.commonApi();
-  templateStore(base.window(), InMemoryDb, db);
+  window.commonApiSet();
+  featureApiSet(db);
+  window.open();
 }
 
-async function templateStore(mainWindow, InMemoryDb, db) {
-  var initList = await nedbFindOne(db, { _id: "template" });
+async function featureApiSet(db) {
+  var initList = await nedbFindOne(db, { _id: FeatureName });
 
   const Date = dateGet();
 
   //nedbに何もない場合初期化
   if (!initList) {
     await nedbInsert(db, {
-      _id: "template",
+      _id: FeatureName,
       value: [
         { listId: "t" + Date, listName: "aaa" },
         { listId: "t2" + Date, listName: "bbb" },
@@ -52,25 +58,10 @@ async function templateStore(mainWindow, InMemoryDb, db) {
     });
   }
 
-  //ショートカット初回画面表示時の処理
-  ipcMain.handle(
-    TemplateApi.gettemplateClipboard,
-    async (event, someArgument) => {
-      var latestClipboardList = await nedbFindOne(db, { _id: "template" });
-      return latestClipboardList.value;
-    }
-  );
-
-  //ショートカット初回画面表示時の処理
-  ipcMain.handle(TemplateApi.templateGet, async (event, id) => {
-    var latestClipboardList = await nedbFindOne(db, { _id: id });
-    return latestClipboardList.value;
-  });
-
   //更新
-  ipcMain.handle(TemplateApi.updateTemplate, (event, data) => {
+  ipcMain.handle(FeatureApi.updateTemplate, (event, data) => {
     db.update(
-      { _id: "template" },
+      { _id: FeatureName },
       { $set: { value: data.list } },
       (error, newDoc) => {}
     );

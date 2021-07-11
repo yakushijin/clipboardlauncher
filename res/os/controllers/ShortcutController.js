@@ -1,54 +1,53 @@
 import { ipcMain } from "electron";
 import { nedbFindOne, nedbInsert, nedbUpdate } from "../dao/Transaction";
 import { openFileOrDirectory, openBrowser } from "../hard/FileSystem";
-import { BaseTest } from "../hard/Window";
+import { Window } from "../hard/Window";
 
-const ShortcutDispInfo = { x: 600, y: 600, autoClose: true };
-const ShortcutApi = {
+const FeatureName = "shortcut";
+
+const FeatureApi = {
   updateShortcut: "updateShortcut",
   getShortcutClipboard: "getShortcutClipboard",
   shortcutOpenDirectory: "shortcutOpenDirectory",
 };
 
+const WindowSize = {
+  x: 600,
+  y: 600,
+};
+
+const WindowAutoClose = true;
+
 export async function shortcutInit(InMemoryDb, db) {
-  const base = new BaseTest(
-    600,
-    600,
-    true,
-    "shortcut",
+  const window = new Window(
+    WindowSize,
+    WindowAutoClose,
+    FeatureName,
     InMemoryDb,
     db,
-    ShortcutApi
+    FeatureApi
   );
 
-  base.commonApi();
-  shortcutStore(base.window(), InMemoryDb, db);
+  window.commonApiSet();
+  featureApiSet(db);
+  window.open();
 }
 
-async function shortcutStore(mainWindow, InMemoryDb, db) {
-  var initList = await nedbFindOne(db, { _id: "shortcut" });
+async function featureApiSet(InMemoryDb, db) {
+  var initList = await nedbFindOne(db, { _id: FeatureName });
 
   //nedbに何もない場合初期化
   if (!initList) {
     await nedbInsert(db, {
-      _id: "shortcut",
+      _id: FeatureName,
       value: [{ dispName: "テスト", pathString: "/" }],
     });
   }
 
-  //ショートカット初回画面表示時の処理
-  ipcMain.handle(
-    ShortcutApi.getShortcutClipboard,
-    async (event, someArgument) => {
-      var latestClipboardList = await nedbFindOne(db, { _id: "shortcut" });
-      return latestClipboardList.value;
-    }
-  );
-
   //更新
-  ipcMain.handle(ShortcutApi.updateShortcut, (event, data) => {
+  ipcMain.handle(FeatureApi.updateShortcut, (event, data) => {
     db.update(
-      { _id: "shortcut" },
+      { _id: FeatureName },
       { $set: { value: data } },
       (error, newDoc) => {}
     );
@@ -56,7 +55,7 @@ async function shortcutStore(mainWindow, InMemoryDb, db) {
   });
 
   //閉じるボタン
-  ipcMain.handle(ShortcutApi.shortcutOpenDirectory, async (event, data) => {
+  ipcMain.handle(FeatureApi.shortcutOpenDirectory, async (event, data) => {
     await mainWindow.close();
     shortcutipcClose(InMemoryDb);
     if (data.type === "local") {
