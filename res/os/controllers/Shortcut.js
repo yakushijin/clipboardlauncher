@@ -3,6 +3,13 @@ import { nedbFindOne, nedbInsert, nedbUpdate } from "../dao/Transaction";
 import { windowOpen } from "../common/Window";
 import { openFileOrDirectory, openBrowser } from "../common/FileSystem";
 const ShortcutDispInfo = { x: 600, y: 600, autoClose: true };
+const ShortcutApi = {
+  updateShortcut: "updateShortcut",
+  getshortcutDispSize: "getshortcutDispSize",
+  getShortcutClipboard: "getShortcutClipboard",
+  shortcutOpenDirectory: "shortcutOpenDirectory",
+  shortcutWindowClose: "shortcutWindowClose",
+};
 
 export async function shortcutInit(InMemoryDb, db) {
   const DispStatus = await nedbFindOne(InMemoryDb, {
@@ -32,18 +39,21 @@ async function shortcutStore(mainWindow, InMemoryDb, db) {
   }
 
   //画面情報取得
-  ipcMain.handle("getshortcutDispSize", (event, someArgument) => {
+  ipcMain.handle(ShortcutApi.getshortcutDispSize, (event, someArgument) => {
     return { x: 600, y: 600, autoClose: true };
   });
 
   //ショートカット初回画面表示時の処理
-  ipcMain.handle("getShortcutClipboard", async (event, someArgument) => {
-    var latestClipboardList = await nedbFindOne(db, { _id: "shortcut" });
-    return latestClipboardList.value;
-  });
+  ipcMain.handle(
+    ShortcutApi.getShortcutClipboard,
+    async (event, someArgument) => {
+      var latestClipboardList = await nedbFindOne(db, { _id: "shortcut" });
+      return latestClipboardList.value;
+    }
+  );
 
   //更新
-  ipcMain.handle("updateShortcut", (event, data) => {
+  ipcMain.handle(ShortcutApi.updateShortcut, (event, data) => {
     db.update(
       { _id: "shortcut" },
       { $set: { value: data } },
@@ -53,7 +63,7 @@ async function shortcutStore(mainWindow, InMemoryDb, db) {
   });
 
   //閉じるボタン
-  ipcMain.handle("shortcutOpenDirectory", async (event, data) => {
+  ipcMain.handle(ShortcutApi.shortcutOpenDirectory, async (event, data) => {
     await mainWindow.close();
     shortcutipcClose(InMemoryDb);
     if (data.type === "local") {
@@ -64,17 +74,15 @@ async function shortcutStore(mainWindow, InMemoryDb, db) {
   });
 
   //閉じるボタン
-  ipcMain.handle("shortcutWindowClose", async (event) => {
+  ipcMain.handle(ShortcutApi.shortcutWindowClose, async (event) => {
     mainWindow.close();
     shortcutipcClose(InMemoryDb);
   });
 }
 
 function shortcutipcClose(InMemoryDb) {
-  ipcMain.removeHandler("updateShortcut");
-  ipcMain.removeHandler("getshortcutDispSize");
-  ipcMain.removeHandler("getShortcutClipboard");
-  ipcMain.removeHandler("shortcutOpenDirectory");
-  ipcMain.removeHandler("shortcutWindowClose");
+  Object.keys(ShortcutApi).forEach((key) =>
+    ipcMain.removeHandler(ShortcutApi[key])
+  );
   nedbUpdate(InMemoryDb, { _id: "shortcutDispOpen" }, { value: false });
 }

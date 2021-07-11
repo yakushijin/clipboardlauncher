@@ -5,15 +5,21 @@ import { windowOpen } from "../common/Window";
 const ClipboardMaxCount = 20;
 const ClipboardSurveillanceTime = 1000;
 const ClipboardDispInfo = { x: 400, y: 800, autoClose: true };
+const ClipboardApi = {
+  getDispSize: "getDispSize",
+  getClipboard: "getClipboard",
+  clipboardSet: "clipboardSet",
+  clipboardAllDelete: "clipboardAllDelete",
+  clipboardWindowClose: "clipboardWindowClose",
+};
 
+//キーボードからの呼び出し処理
 export async function clipboardInit(InMemoryDb, db) {
+  //ウィンドウが開いている場合は新たに開かない
   const DispStatus = await nedbFindOne(InMemoryDb, {
     _id: "clipboardDispOpen",
   });
-  console.log(DispStatus);
-  if (DispStatus.value) {
-    // nedbUpdate(InMemoryDb, { _id: "clipboardDispOpen" }, { value: false });
-  } else {
+  if (!DispStatus.value) {
     const mainWindow = windowOpen(
       ClipboardDispInfo.x,
       ClipboardDispInfo.y,
@@ -24,20 +30,21 @@ export async function clipboardInit(InMemoryDb, db) {
   }
 }
 
+//各イベント登録
 function clipboardStore(mainWindow, InMemoryDb, db) {
   //画面情報取得
-  ipcMain.handle("getDispSize", (event, someArgument) => {
-    return { x: 400, y: 800, autoClose: true };
+  ipcMain.handle(ClipboardApi.getDispSize, (event, someArgument) => {
+    return ClipboardDispInfo;
   });
 
   //クリップボード一覧初回画面表示時の処理
-  ipcMain.handle("getClipboard", async (event, someArgument) => {
+  ipcMain.handle(ClipboardApi.getClipboard, async (event, someArgument) => {
     var latestClipboardList = await nedbFindOne(db, { _id: "clipboard" });
     return latestClipboardList.value;
   });
 
   //クリップボード一覧クリック時の処理
-  ipcMain.handle("clipboardSet", async (event, index) => {
+  ipcMain.handle(ClipboardApi.clipboardSet, async (event, index) => {
     var latestClipboardList = await nedbFindOne(db, { _id: "clipboard" });
     var newClipboardData = latestClipboardList.value[index];
     latestClipboardList.value.splice(index, 1);
@@ -52,7 +59,7 @@ function clipboardStore(mainWindow, InMemoryDb, db) {
   });
 
   //クリップボード一覧クリアボタン押下時の処理
-  ipcMain.handle("clipboardAllDelete", async (event, data) => {
+  ipcMain.handle(ClipboardApi.clipboardAllDelete, async (event, data) => {
     db.update(
       { _id: "clipboard" },
       { $set: { value: [] } },
@@ -62,19 +69,18 @@ function clipboardStore(mainWindow, InMemoryDb, db) {
     ipcClose(InMemoryDb);
   });
 
-  //クリップボード一覧クリアボタン押下時の処理
-  ipcMain.handle("clipboardWindowClose", async (event) => {
+  //クリップボード一覧閉じるボタン押下時の処理
+  ipcMain.handle(ClipboardApi.clipboardWindowClose, async (event) => {
     mainWindow.close();
     ipcClose(InMemoryDb);
   });
 }
 
+//共通終了処理
 function ipcClose(InMemoryDb) {
-  ipcMain.removeHandler("getDispSize");
-  ipcMain.removeHandler("getClipboard");
-  ipcMain.removeHandler("clipboardSet");
-  ipcMain.removeHandler("clipboardAllDelete");
-  ipcMain.removeHandler("clipboardWindowClose");
+  Object.keys(ClipboardApi).forEach((key) =>
+    ipcMain.removeHandler(ClipboardApi[key])
+  );
   nedbUpdate(InMemoryDb, { _id: "clipboardDispOpen" }, { value: false });
 }
 

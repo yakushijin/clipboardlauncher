@@ -12,6 +12,7 @@ import { shortcutInit } from "../controllers/Shortcut";
 import { templateInit } from "../controllers/Template";
 import { clipboardInit, clipboardSurveillance } from "../controllers/Clipboard";
 
+//タスクトレイ設定
 export function trayInit() {
   const tray = new Tray(__dirname + "/icon/icon.png");
   var contextMenu = Menu.buildFromTemplate([
@@ -31,6 +32,7 @@ export function trayInit() {
   tray.setContextMenu(contextMenu);
 }
 
+//キーボードショートカット設定
 export function keyboardSetting(DbSet) {
   const ClipboardOpenButton = "CommandOrControl+Shift+Z";
   const ShortcutOpenButton = "CommandOrControl+Shift+X";
@@ -49,6 +51,7 @@ export function keyboardSetting(DbSet) {
   });
 }
 
+//ウィンドウ表示設定
 export function windowOpen(width, height, fileName) {
   var mouthPoint = screen.getCursorScreenPoint();
   const mainWindow = new BrowserWindow({

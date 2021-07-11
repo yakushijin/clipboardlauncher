@@ -1,7 +1,15 @@
 import { ipcMain } from "electron";
 import { nedbFindOne, nedbInsert, nedbUpdate } from "../dao/Transaction";
 import { windowOpen } from "../common/Window";
+
 const TemplateDispInfo = { x: 1000, y: 600, autoClose: true };
+const TemplateApi = {
+  gettemplateDispSize: "gettemplateDispSize",
+  gettemplateClipboard: "gettemplateClipboard",
+  templateGet: "templateGet",
+  updateTemplate: "updateTemplate",
+  templateWindowClose: "templateWindowClose",
+};
 
 export async function templateInit(InMemoryDb, db) {
   const DispStatus = await nedbFindOne(InMemoryDb, {
@@ -49,24 +57,27 @@ async function templateStore(mainWindow, InMemoryDb, db) {
   }
 
   //画面情報取得
-  ipcMain.handle("gettemplateDispSize", (event, someArgument) => {
+  ipcMain.handle(TemplateApi.gettemplateDispSize, (event, someArgument) => {
     return TemplateDispInfo;
   });
 
   //ショートカット初回画面表示時の処理
-  ipcMain.handle("gettemplateClipboard", async (event, someArgument) => {
-    var latestClipboardList = await nedbFindOne(db, { _id: "template" });
-    return latestClipboardList.value;
-  });
+  ipcMain.handle(
+    TemplateApi.gettemplateClipboard,
+    async (event, someArgument) => {
+      var latestClipboardList = await nedbFindOne(db, { _id: "template" });
+      return latestClipboardList.value;
+    }
+  );
 
   //ショートカット初回画面表示時の処理
-  ipcMain.handle("templateGet", async (event, id) => {
+  ipcMain.handle(TemplateApi.templateGet, async (event, id) => {
     var latestClipboardList = await nedbFindOne(db, { _id: id });
     return latestClipboardList.value;
   });
 
   //更新
-  ipcMain.handle("updateTemplate", (event, data) => {
+  ipcMain.handle(TemplateApi.updateTemplate, (event, data) => {
     db.update(
       { _id: "template" },
       { $set: { value: data.list } },
@@ -78,17 +89,16 @@ async function templateStore(mainWindow, InMemoryDb, db) {
   });
 
   //閉じるボタン
-  ipcMain.handle("templateWindowClose", async (event) => {
+  ipcMain.handle(TemplateApi.templateWindowClose, async (event) => {
     mainWindow.close();
     templateClose(InMemoryDb);
   });
 }
 
 function templateClose(InMemoryDb) {
-  ipcMain.removeHandler("gettemplateDispSize");
-  ipcMain.removeHandler("gettemplateClipboard");
-  ipcMain.removeHandler("templateGet");
-  ipcMain.removeHandler("templateWindowClose");
+  Object.keys(TemplateApi).forEach((key) =>
+    ipcMain.removeHandler(TemplateApi[key])
+  );
   nedbUpdate(InMemoryDb, { _id: "templateDispOpen" }, { value: false });
 }
 
