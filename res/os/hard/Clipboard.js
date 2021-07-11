@@ -1,4 +1,4 @@
-import { ipcMain, clipboard } from "electron";
+import { clipboard } from "electron";
 import { nedbFindOne, nedbInsert, nedbUpdate } from "../dao/Transaction";
 
 const ClipboardMaxCount = 20;
@@ -24,9 +24,6 @@ export async function clipboardSurveillance(db) {
 
     //最新のクリップボードに変更が加わった場合後続処理を実行する
     if (currentClipboardList.value != newString) {
-      console.log(newString);
-      console.log(currentClipboardList.value);
-
       //最新のリストをdbから取得
       var newClipboardList = await nedbFindOne(db, { _id: "clipboard" });
 

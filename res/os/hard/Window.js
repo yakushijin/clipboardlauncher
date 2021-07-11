@@ -52,8 +52,16 @@ export class Window {
     ipcMain.handle(
       this.commonApiList.getDbData,
       async (event, someArgument) => {
-        var latestClipboardList = await nedbFindOne(this.db, { _id: this.id });
-        return latestClipboardList.value;
+        var dbData = await nedbFindOne(this.db, { _id: this.id });
+        if (!dbData) {
+          await nedbInsert(this.db, {
+            _id: this.id,
+            value: [],
+          });
+          return [];
+        }
+
+        return dbData.value;
       }
     );
 

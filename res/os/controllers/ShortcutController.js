@@ -1,5 +1,4 @@
 import { ipcMain } from "electron";
-import { nedbFindOne, nedbInsert, nedbUpdate } from "../dao/Transaction";
 import { openFileOrDirectory, openBrowser } from "../hard/FileSystem";
 import { Window } from "../hard/Window";
 
@@ -7,7 +6,6 @@ const FeatureName = "shortcut";
 
 const FeatureApi = {
   updateShortcut: "updateShortcut",
-  getShortcutClipboard: "getShortcutClipboard",
   shortcutOpenDirectory: "shortcutOpenDirectory",
 };
 
@@ -33,17 +31,7 @@ export async function shortcutInit(InMemoryDb, db) {
   window.open();
 }
 
-async function featureApiSet(InMemoryDb, db) {
-  var initList = await nedbFindOne(db, { _id: FeatureName });
-
-  //nedbに何もない場合初期化
-  if (!initList) {
-    await nedbInsert(db, {
-      _id: FeatureName,
-      value: [{ dispName: "テスト", pathString: "/" }],
-    });
-  }
-
+async function featureApiSet(db) {
   //更新
   ipcMain.handle(FeatureApi.updateShortcut, (event, data) => {
     db.update(
@@ -54,10 +42,8 @@ async function featureApiSet(InMemoryDb, db) {
     return "ok";
   });
 
-  //閉じるボタン
+  //リンククリック
   ipcMain.handle(FeatureApi.shortcutOpenDirectory, async (event, data) => {
-    await mainWindow.close();
-    shortcutipcClose(InMemoryDb);
     if (data.type === "local") {
       openFileOrDirectory(data.path);
     } else if (data.type === "web") {

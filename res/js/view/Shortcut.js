@@ -142,6 +142,7 @@ const EditIconUnit = styled.div`
 function pathClick(data) {
   var dataSet = { path: data, type: PathTypeCheck(data) };
   ipcRenderer.invoke("shortcutOpenDirectory", dataSet);
+  ipcRenderer.invoke(CommonApi.windowClose);
 }
 
 const PathTypeCheck = (data) => {
