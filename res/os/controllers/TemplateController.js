@@ -1,6 +1,6 @@
 import { ipcMain } from "electron";
 import { nedbFindOne, nedbInsert, nedbUpdate } from "../dao/Transaction";
-import { BaseTest } from "./Base";
+import { BaseTest } from "../hard/Window";
 
 const TemplateDispInfo = { x: 1000, y: 600, autoClose: true };
 const TemplateApi = {

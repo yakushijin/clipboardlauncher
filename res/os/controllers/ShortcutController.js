@@ -1,7 +1,7 @@
 import { ipcMain } from "electron";
 import { nedbFindOne, nedbInsert, nedbUpdate } from "../dao/Transaction";
-import { openFileOrDirectory, openBrowser } from "../common/FileSystem";
-import { BaseTest } from "./Base";
+import { openFileOrDirectory, openBrowser } from "../hard/FileSystem";
+import { BaseTest } from "../hard/Window";
 
 const ShortcutDispInfo = { x: 600, y: 600, autoClose: true };
 const ShortcutApi = {
