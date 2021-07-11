@@ -65,8 +65,8 @@ export const Clipboard = () => {
 };
 
 export function clipboardWindowClose() {
-  const GetDispSizeType = "getDispSize";
-  const CloseDispType = "clipboardWindowClose";
+  const GetDispSizeType = "clipboardgetDispSize";
+  const CloseDispType = "clipboardwindowClose";
 
   ipcRenderer.invoke(GetDispSizeType).then((result) => {
     window.addEventListener("mousemove", (event) => {

@@ -73,8 +73,8 @@ export const Template = () => {
 };
 
 export function templateWindowClose() {
-  const GetDispSizeType = "gettemplateDispSize";
-  const CloseDispType = "templateWindowClose";
+  const GetDispSizeType = "templategetDispSize";
+  const CloseDispType = "templatewindowClose";
 
   ipcRenderer.invoke(GetDispSizeType).then((result) => {
     window.addEventListener("mousemove", (event) => {

@@ -45,8 +45,8 @@ export const Shortcut = () => {
 };
 
 export function shortcutWindowClose() {
-  const GetDispSizeType = "getshortcutDispSize";
-  const CloseDispType = "shortcutWindowClose";
+  const GetDispSizeType = "shortcutgetDispSize";
+  const CloseDispType = "shortcutwindowClose";
 
   ipcRenderer.invoke(GetDispSizeType).then((result) => {
     window.addEventListener("mousemove", (event) => {

@@ -1,13 +1,4 @@
-import {
-  app,
-  Menu,
-  Tray,
-  globalShortcut,
-  BrowserWindow,
-  screen,
-} from "electron";
-import path from "path";
-// const path = require("path");
+import { app, Menu, Tray, globalShortcut } from "electron";
 import { shortcutInit } from "../controllers/Shortcut";
 import { templateInit } from "../controllers/Template";
 import { clipboardInit, clipboardSurveillance } from "../controllers/Clipboard";
@@ -49,26 +40,4 @@ export function keyboardSetting(DbSet) {
   globalShortcut.register(TemplateOpenButton, () => {
     templateInit(DbSet.InMemoryDb, DbSet.TemplateDb);
   });
-}
-
-//ウィンドウ表示設定
-export function windowOpen(width, height, fileName) {
-  var mouthPoint = screen.getCursorScreenPoint();
-  const mainWindow = new BrowserWindow({
-    width: width,
-    height: height,
-    x: mouthPoint.x - 40,
-    y: mouthPoint.y - 20,
-    alwaysOnTop: true,
-    transparent: true,
-    frame: false,
-    webPreferences: {
-      preload: path.join(__dirname, "preload.js"),
-    },
-    // show: false, // アプリ起動時にウィンドウを表示しない
-    // skipTaskbar: true, // タスクバーに表示しない
-  });
-  mainWindow.loadFile("public/" + fileName + ".html", ["test"]);
-  // mainWindow.close();
-  return mainWindow;
 }

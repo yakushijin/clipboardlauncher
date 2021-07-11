@@ -1,30 +1,26 @@
 import { ipcMain } from "electron";
 import { nedbFindOne, nedbInsert, nedbUpdate } from "../dao/Transaction";
-import { windowOpen } from "../common/Window";
+import { BaseTest } from "./Base";
 
 const TemplateDispInfo = { x: 1000, y: 600, autoClose: true };
 const TemplateApi = {
-  gettemplateDispSize: "gettemplateDispSize",
   gettemplateClipboard: "gettemplateClipboard",
   templateGet: "templateGet",
   updateTemplate: "updateTemplate",
-  templateWindowClose: "templateWindowClose",
 };
 
 export async function templateInit(InMemoryDb, db) {
-  const DispStatus = await nedbFindOne(InMemoryDb, {
-    _id: "templateDispOpen",
-  });
-  if (DispStatus.value) {
-  } else {
-    const mainWindow = windowOpen(
-      TemplateDispInfo.x,
-      TemplateDispInfo.y,
-      "template"
-    );
-    templateStore(mainWindow, InMemoryDb, db);
-    nedbUpdate(InMemoryDb, { _id: "templateDispOpen" }, { value: true });
-  }
+  const base = new BaseTest(
+    1000,
+    600,
+    true,
+    "template",
+    InMemoryDb,
+    db,
+    TemplateApi
+  );
+  base.commonApi();
+  templateStore(base.window(), InMemoryDb, db);
 }
 
 async function templateStore(mainWindow, InMemoryDb, db) {
@@ -56,11 +52,6 @@ async function templateStore(mainWindow, InMemoryDb, db) {
     });
   }
 
-  //画面情報取得
-  ipcMain.handle(TemplateApi.gettemplateDispSize, (event, someArgument) => {
-    return TemplateDispInfo;
-  });
-
   //ショートカット初回画面表示時の処理
   ipcMain.handle(
     TemplateApi.gettemplateClipboard,
@@ -87,19 +78,6 @@ async function templateStore(mainWindow, InMemoryDb, db) {
 
     return "ok";
   });
-
-  //閉じるボタン
-  ipcMain.handle(TemplateApi.templateWindowClose, async (event) => {
-    mainWindow.close();
-    templateClose(InMemoryDb);
-  });
-}
-
-function templateClose(InMemoryDb) {
-  Object.keys(TemplateApi).forEach((key) =>
-    ipcMain.removeHandler(TemplateApi[key])
-  );
-  nedbUpdate(InMemoryDb, { _id: "templateDispOpen" }, { value: false });
 }
 
 function dateGet() {

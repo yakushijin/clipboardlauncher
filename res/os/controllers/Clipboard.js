@@ -1,42 +1,34 @@
 import { ipcMain, clipboard } from "electron";
 import { nedbFindOne, nedbInsert, nedbUpdate } from "../dao/Transaction";
-import { windowOpen } from "../common/Window";
+import { BaseTest } from "./Base";
 
 const ClipboardMaxCount = 20;
 const ClipboardSurveillanceTime = 1000;
 const ClipboardDispInfo = { x: 400, y: 800, autoClose: true };
 const ClipboardApi = {
-  getDispSize: "getDispSize",
   getClipboard: "getClipboard",
   clipboardSet: "clipboardSet",
   clipboardAllDelete: "clipboardAllDelete",
-  clipboardWindowClose: "clipboardWindowClose",
 };
 
 //キーボードからの呼び出し処理
 export async function clipboardInit(InMemoryDb, db) {
-  //ウィンドウが開いている場合は新たに開かない
-  const DispStatus = await nedbFindOne(InMemoryDb, {
-    _id: "clipboardDispOpen",
-  });
-  if (!DispStatus.value) {
-    const mainWindow = windowOpen(
-      ClipboardDispInfo.x,
-      ClipboardDispInfo.y,
-      "clipboard"
-    );
-    clipboardStore(mainWindow, InMemoryDb, db);
-    nedbUpdate(InMemoryDb, { _id: "clipboardDispOpen" }, { value: true });
-  }
+  const base = new BaseTest(
+    400,
+    800,
+    true,
+    "clipboard",
+    InMemoryDb,
+    db,
+    ClipboardApi
+  );
+
+  base.commonApi();
+  clipboardStore(base.window(), InMemoryDb, db);
 }
 
 //各イベント登録
 function clipboardStore(mainWindow, InMemoryDb, db) {
-  //画面情報取得
-  ipcMain.handle(ClipboardApi.getDispSize, (event, someArgument) => {
-    return ClipboardDispInfo;
-  });
-
   //クリップボード一覧初回画面表示時の処理
   ipcMain.handle(ClipboardApi.getClipboard, async (event, someArgument) => {
     var latestClipboardList = await nedbFindOne(db, { _id: "clipboard" });
@@ -68,20 +60,6 @@ function clipboardStore(mainWindow, InMemoryDb, db) {
     mainWindow.close();
     ipcClose(InMemoryDb);
   });
-
-  //クリップボード一覧閉じるボタン押下時の処理
-  ipcMain.handle(ClipboardApi.clipboardWindowClose, async (event) => {
-    mainWindow.close();
-    ipcClose(InMemoryDb);
-  });
-}
-
-//共通終了処理
-function ipcClose(InMemoryDb) {
-  Object.keys(ClipboardApi).forEach((key) =>
-    ipcMain.removeHandler(ClipboardApi[key])
-  );
-  nedbUpdate(InMemoryDb, { _id: "clipboardDispOpen" }, { value: false });
 }
 
 //クリップボード監視（画面開いていなくても実行）

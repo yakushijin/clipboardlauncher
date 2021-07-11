@@ -1,30 +1,28 @@
 import { ipcMain } from "electron";
 import { nedbFindOne, nedbInsert, nedbUpdate } from "../dao/Transaction";
-import { windowOpen } from "../common/Window";
 import { openFileOrDirectory, openBrowser } from "../common/FileSystem";
+import { BaseTest } from "./Base";
+
 const ShortcutDispInfo = { x: 600, y: 600, autoClose: true };
 const ShortcutApi = {
   updateShortcut: "updateShortcut",
-  getshortcutDispSize: "getshortcutDispSize",
   getShortcutClipboard: "getShortcutClipboard",
   shortcutOpenDirectory: "shortcutOpenDirectory",
-  shortcutWindowClose: "shortcutWindowClose",
 };
 
 export async function shortcutInit(InMemoryDb, db) {
-  const DispStatus = await nedbFindOne(InMemoryDb, {
-    _id: "shortcutDispOpen",
-  });
-  if (DispStatus.value) {
-  } else {
-    const mainWindow = windowOpen(
-      ShortcutDispInfo.x,
-      ShortcutDispInfo.y,
-      "shortcut"
-    );
-    shortcutStore(mainWindow, InMemoryDb, db);
-    nedbUpdate(InMemoryDb, { _id: "shortcutDispOpen" }, { value: true });
-  }
+  const base = new BaseTest(
+    600,
+    600,
+    true,
+    "shortcut",
+    InMemoryDb,
+    db,
+    ShortcutApi
+  );
+
+  base.commonApi();
+  shortcutStore(base.window(), InMemoryDb, db);
 }
 
 async function shortcutStore(mainWindow, InMemoryDb, db) {
@@ -37,11 +35,6 @@ async function shortcutStore(mainWindow, InMemoryDb, db) {
       value: [{ dispName: "テスト", pathString: "/" }],
     });
   }
-
-  //画面情報取得
-  ipcMain.handle(ShortcutApi.getshortcutDispSize, (event, someArgument) => {
-    return { x: 600, y: 600, autoClose: true };
-  });
 
   //ショートカット初回画面表示時の処理
   ipcMain.handle(
@@ -72,17 +65,4 @@ async function shortcutStore(mainWindow, InMemoryDb, db) {
       openBrowser(data.path);
     }
   });
-
-  //閉じるボタン
-  ipcMain.handle(ShortcutApi.shortcutWindowClose, async (event) => {
-    mainWindow.close();
-    shortcutipcClose(InMemoryDb);
-  });
-}
-
-function shortcutipcClose(InMemoryDb) {
-  Object.keys(ShortcutApi).forEach((key) =>
-    ipcMain.removeHandler(ShortcutApi[key])
-  );
-  nedbUpdate(InMemoryDb, { _id: "shortcutDispOpen" }, { value: false });
 }
