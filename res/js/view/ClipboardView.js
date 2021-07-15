@@ -41,7 +41,7 @@ const close = () => {
   ipcRenderer.invoke(CommonApi.windowClose);
 };
 
-export const Clipboard = () => {
+export const ClipboardView = () => {
   const [data, setData] = useState([]);
 
   initDataGet(CommonApi.getDbData, data, setData);

@@ -12,7 +12,7 @@ const close = () => {
   ipcRenderer.invoke(FeatureApi.shortcutWindowClose);
 };
 
-export const Shortcut = () => {
+export const ShortcutView = () => {
   const [data, setData] = useState([]);
 
   initDataGet(CommonApi.getDbData, data, setData);

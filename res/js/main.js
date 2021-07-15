@@ -1,9 +1,9 @@
 import React from "react";
 import ReactDOM from "react-dom";
 
-import { Clipboard, clipboardWindowClose } from "./view/Clipboard";
-import { Shortcut, shortcutWindowClose } from "./view/Shortcut";
-import { Template, templateWindowClose } from "./view/Template";
+import { ClipboardView } from "./view/ClipboardView";
+import { ShortcutView } from "./view/ShortcutView";
+import { TemplateView } from "./view/TemplateView";
 import { windowClose } from "./common/ProcessInterface";
 import { CommonApi as ClipboardApi } from "./const/ClipboardConst";
 import { CommonApi as ShortcutApi } from "./const/ShortcutConst";
@@ -36,7 +36,7 @@ function ClipboardEntry() {
   return (
     <React.Fragment>
       <GlobalStyle />
-      <Clipboard />
+      <ClipboardView />
     </React.Fragment>
   );
 }
@@ -51,7 +51,7 @@ function ShortcutEntry() {
   return (
     <React.Fragment>
       <GlobalStyle />
-      <Shortcut />
+      <ShortcutView />
     </React.Fragment>
   );
 }
@@ -66,7 +66,7 @@ function TemplateEntry() {
   return (
     <React.Fragment>
       <GlobalStyle />
-      <Template />
+      <TemplateView />
     </React.Fragment>
   );
 }

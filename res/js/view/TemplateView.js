@@ -29,7 +29,7 @@ const AddButtonArea = styled.div`
   text-align: right;
 `;
 
-export const Template = () => {
+export const TemplateView = () => {
   const [data, setData] = useState([]);
   const [ContentsData, setContentsData] = useState("");
 
