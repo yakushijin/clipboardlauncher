@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { SimpleList } from "../components/List";
-import { DefaultButton } from "../components/Button";
 import { HeaderArea, TitleArea, IconArea } from "../components/Header";
 import { ClearListIcon, DispCloseIcon } from "../components/Icon";
 import { initDataGet, dataSet } from "../common/ProcessInterface";
@@ -34,12 +33,12 @@ const ListArea = styled.div`
 `;
 
 const allDelete = () => {
-  ipcRenderer.invoke("clipboardAllDelete");
-  ipcRenderer.invoke("clipboardwindowClose");
+  ipcRenderer.invoke(FeatureApi.clipboardAllDelete);
+  ipcRenderer.invoke(CommonApi.windowClose);
 };
 
 const close = () => {
-  ipcRenderer.invoke("clipboardwindowClose");
+  ipcRenderer.invoke(CommonApi.windowClose);
 };
 
 export const Clipboard = () => {

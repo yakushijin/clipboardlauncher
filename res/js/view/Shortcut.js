@@ -2,16 +2,14 @@ import React, { useState } from "react";
 
 import { HeaderArea, TitleArea, IconArea } from "../components/Header";
 import { DataEditIcon, DispCloseIcon, DataAddIcon } from "../components/Icon";
-import { ScrollableTabsButtonAuto } from "../components/Tab";
 import styled from "styled-components";
 import { BasicChip } from "../components/Chip";
 import { BaseModal } from "../components/Modal";
-import { BaseFab } from "../components/Fab";
 import { initDataGet, dataSet } from "../common/ProcessInterface";
 import { FeatureApi, CommonApi } from "../const/ShortcutConst";
 
 const close = () => {
-  ipcRenderer.invoke("shortcutWindowClose");
+  ipcRenderer.invoke(FeatureApi.shortcutWindowClose);
 };
 
 export const Shortcut = () => {
@@ -113,7 +111,7 @@ const EditIconUnit = styled.div`
 
 function pathClick(data) {
   var dataSet = { path: data, type: PathTypeCheck(data) };
-  ipcRenderer.invoke("shortcutOpenDirectory", dataSet);
+  ipcRenderer.invoke(FeatureApi.shortcutOpenDirectory, dataSet);
   ipcRenderer.invoke(CommonApi.windowClose);
 }
 
