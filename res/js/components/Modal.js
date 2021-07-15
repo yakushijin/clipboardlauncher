@@ -6,6 +6,7 @@ import DialogContent from "@material-ui/core/DialogContent";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import { DataEditIcon } from "./Icon";
 import { BaseFab } from "./Fab";
+import { FeatureApi } from "../const/TemplateConst";
 
 import { BaseTextBox, BigTextBox } from "./TextBox";
 
@@ -109,25 +110,30 @@ export function TemplateModal({
 
   const AddData = () => {
     list.push({ listId: NewId, listName: listName });
-    DataSet(list);
+    const contentsDataSet = { _id: NewId, value: tmpContentsData };
+    DataSet(FeatureApi.postTemplate, contentsDataSet);
   };
 
   const UpdateData = () => {
     list[index] = { listId: column.listId, listName: listName };
-    DataSet(list);
+    const contentsDataSet = {
+      id: column.listId,
+      value: tmpContentsData,
+    };
+    DataSet(FeatureApi.putTemplate, contentsDataSet);
   };
 
   const DeleteData = () => {
     list.splice(index, 1);
-    DataSet(list);
+    const contentsDataSet = { id: column.listId };
+    DataSet(FeatureApi.deleteTemplate, contentsDataSet);
   };
 
-  const DataSet = (list) => {
+  const DataSet = (templateApi, contentsDataSet) => {
     var array = list.concat();
     setData(array);
-    const contentsDataSet = { _id: NewId, value: tmpContentsData };
     ipcRenderer
-      .invoke("updateTemplate", { list: array, contents: contentsDataSet })
+      .invoke(templateApi, { list: array, contents: contentsDataSet })
       .then((result) => {
         setContentsData(tmpContentsData);
         handleClose();

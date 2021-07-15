@@ -1,12 +1,19 @@
 import { ipcMain } from "electron";
-import { nedbFindOne, nedbInsert, nedbUpdate } from "../dao/Transaction";
+import {
+  nedbFindOne,
+  nedbInsert,
+  nedbUpdate,
+  nedbDelete,
+} from "../dao/Transaction";
 import { Window } from "../hard/Window";
 
 const FeatureName = "template";
 
 const FeatureApi = {
   templateGet: "templateGet",
-  updateTemplate: "updateTemplate",
+  postTemplate: "postTemplate",
+  putTemplate: "putTemplate",
+  deleteTemplate: "deleteTemplate",
 };
 
 const WindowSize = {
@@ -36,14 +43,26 @@ async function featureApiSet(db) {
     return latestClipboardList.value;
   });
 
-  //更新
-  ipcMain.handle(FeatureApi.updateTemplate, (event, data) => {
-    db.update(
-      { _id: FeatureName },
-      { $set: { value: data.list } },
-      (error, newDoc) => {}
-    );
+  //作成
+  ipcMain.handle(FeatureApi.postTemplate, (event, data) => {
+    nedbUpdate(db, { _id: FeatureName }, { value: data.list });
     nedbInsert(db, data.contents);
+
+    return "ok";
+  });
+
+  //更新
+  ipcMain.handle(FeatureApi.putTemplate, (event, data) => {
+    nedbUpdate(db, { _id: FeatureName }, { value: data.list });
+    nedbUpdate(db, { _id: data.contents.id }, { value: data.contents.value });
+
+    return "ok";
+  });
+
+  //削除
+  ipcMain.handle(FeatureApi.deleteTemplate, (event, data) => {
+    nedbUpdate(db, { _id: FeatureName }, { value: data.list });
+    nedbDelete(db, { _id: data.contents.id });
 
     return "ok";
   });

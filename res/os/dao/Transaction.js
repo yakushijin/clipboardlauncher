@@ -33,3 +33,15 @@ export function nedbUpdate(db, query, data) {
     })
   );
 }
+
+export function nedbDelete(db, query) {
+  return new Promise((resolve, reject) =>
+    db.remove(query, {}, (err, documents) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(documents);
+      }
+    })
+  );
+}

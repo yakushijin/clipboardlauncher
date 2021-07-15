@@ -5,7 +5,9 @@ export const FeatureName = "template";
 export const FeatureApi = {
   gettemplateClipboard: "gettemplateClipboard",
   templateGet: "templateGet",
-  updateTemplate: "updateTemplate",
+  postTemplate: "postTemplate",
+  putTemplate: "putTemplate",
+  deleteTemplate: "deleteTemplate",
 };
 
 export const CommonApi = {
