@@ -44,17 +44,8 @@ const close = () => {
 
 export const Clipboard = () => {
   const [data, setData] = useState([]);
-  console.log(data);
 
-  // if (data.length == 0) {
-  //   initDataGet(setData);
-  // }
-
-  if (data.length == 0) {
-    ipcRenderer.invoke(CommonApi.getDbData).then((result) => {
-      setData(result);
-    });
-  }
+  initDataGet(CommonApi.getDbData, data, setData);
 
   return (
     <React.Fragment>
@@ -71,23 +62,3 @@ export const Clipboard = () => {
     </React.Fragment>
   );
 };
-
-export function clipboardWindowClose() {
-  const GetDispSizeType = "getDispSize";
-  const CloseDispType = "windowClose";
-
-  ipcRenderer.invoke(CommonApi.getDispSize).then((result) => {
-    window.addEventListener("mousemove", (event) => {
-      if (result.autoClose) {
-        if (
-          event.clientX < 20 ||
-          event.clientY < 20 ||
-          event.clientX > result.x - 20 ||
-          event.clientY > result.y - 20
-        ) {
-          ipcRenderer.invoke(CommonApi.windowClose);
-        }
-      }
-    });
-  });
-}

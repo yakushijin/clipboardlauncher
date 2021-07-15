@@ -33,15 +33,7 @@ export const Template = () => {
   const [data, setData] = useState([]);
   const [ContentsData, setContentsData] = useState("");
 
-  if (data.length == 0) {
-    ipcRenderer.invoke(CommonApi.getDbData).then((result) => {
-      setData(result);
-    });
-  }
-
-  // if (data.length == 0) {
-  //   initDataGet(setData);
-  // }
+  initDataGet(CommonApi.getDbData, data, setData);
 
   return (
     <React.Fragment>
@@ -76,23 +68,3 @@ export const Template = () => {
     </React.Fragment>
   );
 };
-
-export function templateWindowClose() {
-  const GetDispSizeType = "getDispSize";
-  const CloseDispType = "windowClose";
-
-  ipcRenderer.invoke(CommonApi.getDispSize).then((result) => {
-    window.addEventListener("mousemove", (event) => {
-      if (result.autoClose) {
-        if (
-          event.clientX < 20 ||
-          event.clientY < 20 ||
-          event.clientX > result.x - 20 ||
-          event.clientY > result.y - 20
-        ) {
-          ipcRenderer.invoke(CommonApi.windowClose);
-        }
-      }
-    });
-  });
-}
