@@ -3,11 +3,18 @@ import TextField from "@material-ui/core/TextField";
 import { makeStyles } from "@material-ui/core/styles";
 import { TextareaAutosize } from "@material-ui/core";
 
+const BaseTextBoxStyles = makeStyles(() => ({
+  root: {
+    marginBottom: 10,
+  },
+}));
+
 export const BaseTextBox = ({ name, value, onChange }) => {
+  const classes = BaseTextBoxStyles();
   return (
     <form noValidate autoComplete="off">
       <TextField
-        // id="outlined-basic"
+        className={classes.root}
         label={name}
         defaultValue={value}
         onBlur={onChange}
