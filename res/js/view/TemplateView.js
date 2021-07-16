@@ -5,6 +5,7 @@ import { HeaderArea, TitleArea, IconArea } from "../components/Header";
 import { DataEditIcon, DispCloseIcon, DataAddIcon } from "../components/Icon";
 import styled from "styled-components";
 import { TemplateModal } from "../components/Modal";
+import { FeatureApi, CommonApi } from "../const/TemplateConst";
 
 const FlexBox = styled.div`
   color: #444;
@@ -28,15 +29,11 @@ const AddButtonArea = styled.div`
   text-align: right;
 `;
 
-export const Template = () => {
+export const TemplateView = () => {
   const [data, setData] = useState([]);
   const [ContentsData, setContentsData] = useState("");
 
-  if (data.length == 0) {
-    ipcRenderer.invoke("gettemplateClipboard").then((result) => {
-      setData(result);
-    });
-  }
+  initDataGet(CommonApi.getDbData, data, setData);
 
   return (
     <React.Fragment>
@@ -71,23 +68,3 @@ export const Template = () => {
     </React.Fragment>
   );
 };
-
-export function templateWindowClose() {
-  const GetDispSizeType = "gettemplateDispSize";
-  const CloseDispType = "templateWindowClose";
-
-  ipcRenderer.invoke(GetDispSizeType).then((result) => {
-    window.addEventListener("mousemove", (event) => {
-      if (result.autoClose) {
-        if (
-          event.clientX < 20 ||
-          event.clientY < 20 ||
-          event.clientX > result.x - 20 ||
-          event.clientY > result.y - 20
-        ) {
-          ipcRenderer.invoke(CloseDispType);
-        }
-      }
-    });
-  });
-}

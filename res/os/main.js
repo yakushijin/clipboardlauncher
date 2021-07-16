@@ -1,7 +1,8 @@
 import { app } from "electron";
 import { dbInit } from "./dao/Create";
-import { trayInit, keyboardSetting } from "./common/Window";
-import { clipboardSurveillance } from "./controllers/Clipboard";
+import { trayInit } from "./hard/Tray";
+import { keyboardSetting } from "./hard/Keyboard";
+import { clipboardSurveillance } from "./hard/Clipboard";
 
 app.whenReady().then(() => {
   const DbSet = dbInit();

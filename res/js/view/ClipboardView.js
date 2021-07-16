@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { SimpleList } from "../components/List";
-import { DefaultButton } from "../components/Button";
 import { HeaderArea, TitleArea, IconArea } from "../components/Header";
 import { ClearListIcon, DispCloseIcon } from "../components/Icon";
 import { initDataGet, dataSet } from "../common/ProcessInterface";
+import { FeatureApi, CommonApi } from "../const/ClipboardConst";
 
 import styled from "styled-components";
 
@@ -33,20 +33,18 @@ const ListArea = styled.div`
 `;
 
 const allDelete = () => {
-  ipcRenderer.invoke("clipboardAllDelete");
+  ipcRenderer.invoke(FeatureApi.clipboardAllDelete);
+  ipcRenderer.invoke(CommonApi.windowClose);
 };
 
 const close = () => {
-  ipcRenderer.invoke("clipboardWindowClose");
+  ipcRenderer.invoke(CommonApi.windowClose);
 };
 
-export const Clipboard = () => {
+export const ClipboardView = () => {
   const [data, setData] = useState([]);
-  console.log(data);
 
-  if (data.length == 0) {
-    initDataGet(setData);
-  }
+  initDataGet(CommonApi.getDbData, data, setData);
 
   return (
     <React.Fragment>
@@ -63,23 +61,3 @@ export const Clipboard = () => {
     </React.Fragment>
   );
 };
-
-export function clipboardWindowClose() {
-  const GetDispSizeType = "getDispSize";
-  const CloseDispType = "clipboardWindowClose";
-
-  ipcRenderer.invoke(GetDispSizeType).then((result) => {
-    window.addEventListener("mousemove", (event) => {
-      if (result.autoClose) {
-        if (
-          event.clientX < 20 ||
-          event.clientY < 20 ||
-          event.clientX > result.x - 20 ||
-          event.clientY > result.y - 20
-        ) {
-          ipcRenderer.invoke(CloseDispType);
-        }
-      }
-    });
-  });
-}

@@ -2,24 +2,20 @@ import React, { useState } from "react";
 
 import { HeaderArea, TitleArea, IconArea } from "../components/Header";
 import { DataEditIcon, DispCloseIcon, DataAddIcon } from "../components/Icon";
-import { ScrollableTabsButtonAuto } from "../components/Tab";
 import styled from "styled-components";
 import { BasicChip } from "../components/Chip";
 import { BaseModal } from "../components/Modal";
-import { BaseFab } from "../components/Fab";
+import { initDataGet, dataSet } from "../common/ProcessInterface";
+import { FeatureApi, CommonApi } from "../const/ShortcutConst";
 
 const close = () => {
-  ipcRenderer.invoke("shortcutWindowClose");
+  ipcRenderer.invoke(FeatureApi.shortcutWindowClose);
 };
 
-export const Shortcut = () => {
+export const ShortcutView = () => {
   const [data, setData] = useState([]);
 
-  if (data.length == 0) {
-    ipcRenderer.invoke("getShortcutClipboard").then((result) => {
-      setData(result);
-    });
-  }
+  initDataGet(CommonApi.getDbData, data, setData);
 
   return (
     <React.Fragment>
@@ -43,26 +39,6 @@ export const Shortcut = () => {
     </React.Fragment>
   );
 };
-
-export function shortcutWindowClose() {
-  const GetDispSizeType = "getshortcutDispSize";
-  const CloseDispType = "shortcutWindowClose";
-
-  ipcRenderer.invoke(GetDispSizeType).then((result) => {
-    window.addEventListener("mousemove", (event) => {
-      if (result.autoClose) {
-        if (
-          event.clientX < 20 ||
-          event.clientY < 20 ||
-          event.clientX > result.x - 20 ||
-          event.clientY > result.y - 20
-        ) {
-          ipcRenderer.invoke(CloseDispType);
-        }
-      }
-    });
-  });
-}
 
 const Item = ({ listData, setData }) => {
   return (
@@ -135,7 +111,8 @@ const EditIconUnit = styled.div`
 
 function pathClick(data) {
   var dataSet = { path: data, type: PathTypeCheck(data) };
-  ipcRenderer.invoke("shortcutOpenDirectory", dataSet);
+  ipcRenderer.invoke(FeatureApi.shortcutOpenDirectory, dataSet);
+  ipcRenderer.invoke(CommonApi.windowClose);
 }
 
 const PathTypeCheck = (data) => {
