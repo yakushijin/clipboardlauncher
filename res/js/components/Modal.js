@@ -62,11 +62,13 @@ export function BaseModal({ newFlag, column, index, list, setData }) {
             name={"dispName"}
             value={dispName}
             onChange={(e) => dispNameChange(e.target.value)}
+            maxLength={20}
           />
           <BaseTextBox
             name={"pathString"}
             value={pathString}
             onChange={(e) => pathStringChange(e.target.value)}
+            maxLength={255}
           />
 
           <Grid container spacing={1}>
@@ -169,6 +171,7 @@ export function TemplateModal({
             name={"name"}
             value={column.listName}
             onChange={(e) => dispNameChange(e.target.value)}
+            maxLength={20}
           />
           <BigTextBox
             name={"listName"}

@@ -9,16 +9,37 @@ const BaseTextBoxStyles = makeStyles(() => ({
   },
 }));
 
-export const BaseTextBox = ({ name, value, onChange }) => {
+export const BaseTextBox = ({ name, value, onChange, maxLength }) => {
   const classes = BaseTextBoxStyles();
+  const inputRef = React.useRef(null);
+  const [inputError, setInputError] = React.useState(false);
+  const handleChange = () => {
+    if (inputRef.current) {
+      const ref = inputRef.current;
+      if (!ref.validity.valid) {
+        setInputError(true);
+      } else {
+        setInputError(false);
+      }
+    }
+  };
+
   return (
-    <form noValidate autoComplete="off">
+    <form nclassName={classes.root}>
       <TextField
         className={classes.root}
         label={name}
         defaultValue={value}
         onBlur={onChange}
         variant="outlined"
+        error={inputError}
+        required
+        inputProps={{
+          maxLength: maxLength,
+        }}
+        inputRef={inputRef}
+        helperText={inputRef?.current?.validationMessage}
+        onChange={handleChange}
       />
     </form>
   );
