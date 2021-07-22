@@ -175,7 +175,7 @@ export function TemplateModal({
           />
           <BigTextBox
             name={"listName"}
-            value={contentsData}
+            value={newFlag ? "" : contentsData}
             onChange={(e) => setTmpContentsData(e.target.value)}
           />
           <Grid container spacing={1}>
