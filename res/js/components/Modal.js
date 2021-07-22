@@ -84,7 +84,7 @@ export function BaseModal({ newFlag, column, index, list, setData }) {
         <DialogTitle>{newFlag ? "新規作成" : "変更"}</DialogTitle>
         <DialogContent>
           <BaseTextBox
-            name={"dispName"}
+            name={"リンク名"}
             value={dispName}
             onChange={(e) => dispNameChange(e.target.value)}
             maxLength={20}
@@ -93,7 +93,7 @@ export function BaseModal({ newFlag, column, index, list, setData }) {
             inputRef={inputRefDispName}
           />
           <BaseTextBox
-            name={"pathString"}
+            name={"リンクパス"}
             value={pathString}
             onChange={(e) => pathStringChange(e.target.value)}
             maxLength={255}
@@ -205,7 +205,7 @@ export function TemplateModal({
         <DialogTitle>{newFlag ? "新規作成" : "変更"}</DialogTitle>
         <DialogContent>
           <BaseTextBox
-            name={"name"}
+            name={"定型文名"}
             value={column.listName}
             onChange={(e) => dispNameChange(e.target.value)}
             maxLength={20}
@@ -214,7 +214,7 @@ export function TemplateModal({
             inputRef={inputRef}
           />
           <BigTextBox
-            name={"listName"}
+            name={"定型文"}
             value={newFlag ? "" : contentsData}
             onChange={(e) => setTmpContentsData(e.target.value)}
           />
