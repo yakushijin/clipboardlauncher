@@ -3,29 +3,27 @@ import TextField from "@material-ui/core/TextField";
 import { makeStyles } from "@material-ui/core/styles";
 import { TextareaAutosize } from "@material-ui/core";
 
+import { validationCheck } from "../common/Validation";
+
 const BaseTextBoxStyles = makeStyles(() => ({
   root: {
     marginBottom: 10,
   },
 }));
 
-export const BaseTextBox = ({ name, value, onChange, maxLength }) => {
+export const BaseTextBox = ({
+  name,
+  value,
+  onChange,
+  maxLength,
+  inputError,
+  setInputError,
+  inputRef,
+}) => {
   const classes = BaseTextBoxStyles();
-  const inputRef = React.useRef(null);
-  const [inputError, setInputError] = React.useState(false);
-  const handleChange = () => {
-    if (inputRef.current) {
-      const ref = inputRef.current;
-      if (!ref.validity.valid) {
-        setInputError(true);
-      } else {
-        setInputError(false);
-      }
-    }
-  };
 
   return (
-    <form nclassName={classes.root}>
+    <form className={classes.root}>
       <TextField
         className={classes.root}
         label={name}
@@ -38,8 +36,8 @@ export const BaseTextBox = ({ name, value, onChange, maxLength }) => {
           maxLength: maxLength,
         }}
         inputRef={inputRef}
-        helperText={inputRef?.current?.validationMessage}
-        onChange={handleChange}
+        helperText={inputError ? inputRef?.current?.validationMessage : ""}
+        onChange={() => validationCheck(inputRef, setInputError)}
       />
     </form>
   );

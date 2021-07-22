@@ -6,6 +6,7 @@ import DialogTitle from "@material-ui/core/DialogTitle";
 import { DataEditIcon } from "./Icon";
 import { BaseFab } from "./Fab";
 import Grid from "@material-ui/core/Grid";
+import { validationCheck } from "../common/Validation";
 
 import { FeatureApi } from "../const/TemplateConst";
 
@@ -16,6 +17,10 @@ export function BaseModal({ newFlag, column, index, list, setData }) {
   const [open, setOpen] = React.useState(false);
   const [dispName, dispNameChange] = React.useState(column.dispName);
   const [pathString, pathStringChange] = React.useState(column.pathString);
+  const [validationDispName, setValidationDispName] = React.useState(false);
+  const [validationPathString, setValidationPathString] = React.useState(false);
+  const inputRefDispName = React.useRef(null);
+  const inputRefPathString = React.useRef(null);
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -25,14 +30,34 @@ export function BaseModal({ newFlag, column, index, list, setData }) {
     setOpen(false);
   };
 
+  const exeValidationCheck = () => {
+    const getValidationDispName = validationCheck(
+      inputRefDispName,
+      setValidationDispName
+    );
+    const getValidationPathString = validationCheck(
+      inputRefPathString,
+      setValidationPathString
+    );
+    if (getValidationDispName && getValidationPathString) {
+      return true;
+    } else {
+      return false;
+    }
+  };
+
   const AddData = () => {
-    list.push({ dispName: dispName, pathString: pathString });
-    DataSet(list);
+    if (exeValidationCheck()) {
+      list.push({ dispName: dispName, pathString: pathString });
+      DataSet(list);
+    }
   };
 
   const UpdateData = () => {
-    list[index] = { dispName: dispName, pathString: pathString };
-    DataSet(list);
+    if (exeValidationCheck()) {
+      list[index] = { dispName: dispName, pathString: pathString };
+      DataSet(list);
+    }
   };
 
   const DeleteData = () => {
@@ -63,12 +88,18 @@ export function BaseModal({ newFlag, column, index, list, setData }) {
             value={dispName}
             onChange={(e) => dispNameChange(e.target.value)}
             maxLength={20}
+            inputError={validationDispName}
+            setInputError={setValidationDispName}
+            inputRef={inputRefDispName}
           />
           <BaseTextBox
             name={"pathString"}
             value={pathString}
             onChange={(e) => pathStringChange(e.target.value)}
             maxLength={255}
+            inputError={validationPathString}
+            setInputError={setValidationPathString}
+            inputRef={inputRefPathString}
           />
 
           <Grid container spacing={1}>
@@ -114,6 +145,8 @@ export function TemplateModal({
   const [open, setOpen] = React.useState(false);
   const [listName, dispNameChange] = React.useState(column.listName);
   const [tmpContentsData, setTmpContentsData] = React.useState();
+  const [validationTmpName, setValidationTmpName] = React.useState(false);
+  const inputRef = React.useRef(null);
 
   const NewId = dateGet();
 
@@ -126,18 +159,22 @@ export function TemplateModal({
   };
 
   const AddData = () => {
-    list.push({ listId: NewId, listName: listName });
-    const contentsDataSet = { _id: NewId, value: tmpContentsData };
-    DataSet(FeatureApi.postTemplate, contentsDataSet);
+    if (validationCheck(inputRef, setValidationTmpName)) {
+      list.push({ listId: NewId, listName: listName });
+      const contentsDataSet = { _id: NewId, value: tmpContentsData };
+      DataSet(FeatureApi.postTemplate, contentsDataSet);
+    }
   };
 
   const UpdateData = () => {
-    list[index] = { listId: column.listId, listName: listName };
-    const contentsDataSet = {
-      id: column.listId,
-      value: tmpContentsData,
-    };
-    DataSet(FeatureApi.putTemplate, contentsDataSet);
+    if (validationCheck(inputRef, setValidationTmpName)) {
+      list[index] = { listId: column.listId, listName: listName };
+      const contentsDataSet = {
+        id: column.listId,
+        value: tmpContentsData,
+      };
+      DataSet(FeatureApi.putTemplate, contentsDataSet);
+    }
   };
 
   const DeleteData = () => {
@@ -172,6 +209,9 @@ export function TemplateModal({
             value={column.listName}
             onChange={(e) => dispNameChange(e.target.value)}
             maxLength={20}
+            inputError={validationTmpName}
+            setInputError={setValidationTmpName}
+            inputRef={inputRef}
           />
           <BigTextBox
             name={"listName"}
