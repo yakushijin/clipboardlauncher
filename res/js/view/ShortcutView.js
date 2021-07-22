@@ -7,6 +7,7 @@ import { BasicChip } from "../components/Chip";
 import { BaseModal } from "../components/Modal";
 import { initDataGet, dataSet } from "../common/ProcessInterface";
 import { FeatureApi, CommonApi } from "../const/ShortcutConst";
+import IconButton from "@material-ui/core/IconButton";
 
 const close = () => {
   ipcRenderer.invoke(FeatureApi.shortcutWindowClose);
@@ -52,7 +53,7 @@ const Item = ({ listData, setData }) => {
                 <ItemUnit onClick={() => pathClick(column.pathString)}>
                   {column.dispName}
                 </ItemUnit>
-                <EditIconUnit>
+                <IconButton size="small" edge="end" color="primary">
                   <BaseModal
                     newFlag={false}
                     column={column}
@@ -60,7 +61,7 @@ const Item = ({ listData, setData }) => {
                     list={listData}
                     setData={setData}
                   />
-                </EditIconUnit>
+                </IconButton>
               </React.Fragment>
             }
           />
@@ -71,7 +72,9 @@ const Item = ({ listData, setData }) => {
 };
 
 const AddButtonArea = styled.div`
-  text-align: right;
+  position: absolute;
+  bottom: 0;
+  right: 0;
 `;
 
 const ItemIcon = styled.div.attrs((props) => ({
@@ -95,17 +98,6 @@ const ItemUnit = styled.div`
   font-size: 20px;
   padding: 4px;
   margin: 4px;
-  display: inline-block;
-`;
-
-const EditIconUnit = styled.div`
-  border-radius: 10%;
-  background: #888;
-  height: 24px;
-  width: 24px;
-  box-shadow: "8px 8px 8px #ccc";
-  /* padding: 2px; */
-  margin-top: 8px;
   display: inline-block;
 `;
 

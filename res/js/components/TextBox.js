@@ -3,15 +3,43 @@ import TextField from "@material-ui/core/TextField";
 import { makeStyles } from "@material-ui/core/styles";
 import { TextareaAutosize } from "@material-ui/core";
 
-export const BaseTextBox = ({ name, value, onChange }) => {
+const BaseTextBoxStyles = makeStyles(() => ({
+  root: {
+    marginBottom: 10,
+  },
+}));
+
+export const BaseTextBox = ({ name, value, onChange, maxLength }) => {
+  const classes = BaseTextBoxStyles();
+  const inputRef = React.useRef(null);
+  const [inputError, setInputError] = React.useState(false);
+  const handleChange = () => {
+    if (inputRef.current) {
+      const ref = inputRef.current;
+      if (!ref.validity.valid) {
+        setInputError(true);
+      } else {
+        setInputError(false);
+      }
+    }
+  };
+
   return (
-    <form noValidate autoComplete="off">
+    <form nclassName={classes.root}>
       <TextField
-        // id="outlined-basic"
+        className={classes.root}
         label={name}
         defaultValue={value}
         onBlur={onChange}
         variant="outlined"
+        error={inputError}
+        required
+        inputProps={{
+          maxLength: maxLength,
+        }}
+        inputRef={inputRef}
+        helperText={inputRef?.current?.validationMessage}
+        onChange={handleChange}
       />
     </form>
   );

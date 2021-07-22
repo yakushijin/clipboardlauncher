@@ -26,7 +26,9 @@ const TextBack = styled.div`
 `;
 
 const AddButtonArea = styled.div`
-  text-align: right;
+  position: absolute;
+  bottom: 0;
+  right: 0;
 `;
 
 export const TemplateView = () => {
@@ -51,19 +53,19 @@ export const TemplateView = () => {
             contentsData={ContentsData}
             setContentsData={setContentsData}
           />
-          <AddButtonArea>
-            <TemplateModal
-              newFlag={true}
-              column={""}
-              index={""}
-              list={data}
-              setData={setData}
-              contentsData={ContentsData}
-              setContentsData={setContentsData}
-            />
-          </AddButtonArea>
         </ListBack>
         <TextBack>{ContentsData}</TextBack>
+        <AddButtonArea>
+          <TemplateModal
+            newFlag={true}
+            column={""}
+            index={""}
+            list={data}
+            setData={setData}
+            contentsData={ContentsData}
+            setContentsData={setContentsData}
+          />
+        </AddButtonArea>
       </FlexBox>
     </React.Fragment>
   );

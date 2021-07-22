@@ -8,3 +8,24 @@ export const DefaultButton = ({ onClick, name }) => {
     </Button>
   );
 };
+
+export const ImportantButton = ({ onClick, name }) => {
+  return (
+    <Button
+      variant="contained"
+      color="secondary"
+      size="small"
+      onClick={onClick}
+    >
+      {name}
+    </Button>
+  );
+};
+
+export const NotButton = ({ onClick, name }) => {
+  return (
+    <Button variant="contained" size="small" onClick={onClick}>
+      {name}
+    </Button>
+  );
+};

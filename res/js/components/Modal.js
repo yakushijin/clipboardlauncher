@@ -1,14 +1,16 @@
 import React from "react";
-import Button from "@material-ui/core/Button";
 import Dialog from "@material-ui/core/Dialog";
 import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import { DataEditIcon } from "./Icon";
 import { BaseFab } from "./Fab";
+import Grid from "@material-ui/core/Grid";
+
 import { FeatureApi } from "../const/TemplateConst";
 
 import { BaseTextBox, BigTextBox } from "./TextBox";
+import { DefaultButton, ImportantButton, NotButton } from "./Button";
 
 export function BaseModal({ newFlag, column, index, list, setData }) {
   const [open, setOpen] = React.useState(false);
@@ -60,26 +62,41 @@ export function BaseModal({ newFlag, column, index, list, setData }) {
             name={"dispName"}
             value={dispName}
             onChange={(e) => dispNameChange(e.target.value)}
+            maxLength={20}
           />
           <BaseTextBox
             name={"pathString"}
             value={pathString}
             onChange={(e) => pathStringChange(e.target.value)}
+            maxLength={255}
           />
+
+          <Grid container spacing={1}>
+            {newFlag ? (
+              <Grid item>
+                <DefaultButton onClick={AddData} name={"作成"}></DefaultButton>
+              </Grid>
+            ) : (
+              <React.Fragment>
+                <Grid item>
+                  <DefaultButton
+                    onClick={UpdateData}
+                    name={"更新"}
+                  ></DefaultButton>
+                </Grid>
+                <Grid item>
+                  <ImportantButton
+                    onClick={DeleteData}
+                    name={"削除"}
+                  ></ImportantButton>
+                </Grid>
+              </React.Fragment>
+            )}
+            <Grid item>
+              <NotButton onClick={handleClose} name={"キャンセル"}></NotButton>
+            </Grid>
+          </Grid>
         </DialogContent>
-        <DialogActions>
-          {newFlag ? (
-            <Button onClick={AddData}>作成</Button>
-          ) : (
-            <React.Fragment>
-              <Button onClick={UpdateData}>更新</Button>
-              <Button onClick={DeleteData}>削除</Button>
-            </React.Fragment>
-          )}
-          <Button onClick={handleClose} color="primary" autoFocus>
-            キャンセル
-          </Button>
-        </DialogActions>
       </Dialog>
     </div>
   );
@@ -154,26 +171,39 @@ export function TemplateModal({
             name={"name"}
             value={column.listName}
             onChange={(e) => dispNameChange(e.target.value)}
+            maxLength={20}
           />
           <BigTextBox
             name={"listName"}
             value={contentsData}
             onChange={(e) => setTmpContentsData(e.target.value)}
           />
+          <Grid container spacing={1}>
+            {newFlag ? (
+              <Grid item>
+                <DefaultButton onClick={AddData} name={"作成"}></DefaultButton>
+              </Grid>
+            ) : (
+              <React.Fragment>
+                <Grid item>
+                  <DefaultButton
+                    onClick={UpdateData}
+                    name={"更新"}
+                  ></DefaultButton>
+                </Grid>
+                <Grid item>
+                  <ImportantButton
+                    onClick={DeleteData}
+                    name={"削除"}
+                  ></ImportantButton>
+                </Grid>
+              </React.Fragment>
+            )}
+            <Grid item>
+              <NotButton onClick={handleClose} name={"キャンセル"}></NotButton>
+            </Grid>
+          </Grid>
         </DialogContent>
-        <DialogActions>
-          {newFlag ? (
-            <Button onClick={AddData}>作成</Button>
-          ) : (
-            <React.Fragment>
-              <Button onClick={UpdateData}>更新</Button>
-              <Button onClick={DeleteData}>削除</Button>
-            </React.Fragment>
-          )}
-          <Button onClick={handleClose} color="primary" autoFocus>
-            キャンセル
-          </Button>
-        </DialogActions>
       </Dialog>
     </div>
   );
