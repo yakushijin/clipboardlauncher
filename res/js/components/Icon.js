@@ -5,6 +5,7 @@ import ClearAllIcon from "@material-ui/icons/ClearAll";
 import EditIcon from "@material-ui/icons/Edit";
 import { makeStyles } from "@material-ui/core/styles";
 import AddIcon from "@material-ui/icons/Add";
+import FileCopyIcon from "@material-ui/icons/FileCopy";
 
 const useStyles = makeStyles({
   root: {
@@ -54,5 +55,16 @@ export const DataAddIcon = ({ onClick }) => {
       fontSize="small"
       onClick={onClick}
     ></AddIcon>
+  );
+};
+
+export const CopyIcon = ({ onClick }) => {
+  const classes = useStyles();
+  return (
+    <FileCopyIcon
+      className={classes.root}
+      fontSize="small"
+      onClick={onClick}
+    ></FileCopyIcon>
   );
 };

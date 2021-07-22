@@ -8,6 +8,7 @@ import styled from "styled-components";
 import Divider from "@material-ui/core/Divider";
 import { makeStyles } from "@material-ui/core/styles";
 import { TemplateModal } from "./Modal";
+import { CopyIcon } from "./Icon";
 
 const ListScrollArea = styled.div`
   height: 90vh;
@@ -97,6 +98,11 @@ export const TemplateList = ({
                     setContentsData={setContentsData}
                   />
                 </IconButton>
+                <IconButton size="small" edge="start" color="primary">
+                  <CopyIcon
+                    onClick={() => templateCopy(column.listId)}
+                  ></CopyIcon>
+                </IconButton>
               </ListItemSecondaryAction>
             </ListItem>
             <Divider />
@@ -110,5 +116,11 @@ export const TemplateList = ({
 function templateGet(id, setContentsData) {
   ipcRenderer.invoke("templateGet", id).then((result) => {
     setContentsData(result);
+  });
+}
+
+function templateCopy(id) {
+  ipcRenderer.invoke("templateGet", id).then((result) => {
+    navigator.clipboard.writeText(result);
   });
 }
