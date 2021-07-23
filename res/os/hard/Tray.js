@@ -11,9 +11,16 @@ export function trayInit() {
       },
     },
     {
+      label: "再起動",
+      click: function () {
+        app.relaunch();
+        app.exit();
+      },
+    },
+    {
       label: "終了",
       click: function () {
-        app.quit();
+        app.exit();
       },
     },
   ]);
