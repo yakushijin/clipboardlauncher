@@ -32,39 +32,37 @@ export async function templateInit(InMemoryDb, db) {
     db,
     FeatureApi
   );
-  window.openStateCheck();
-  window.commonApiSet();
-  featureApiSet(db);
-  window.open();
-}
 
-async function featureApiSet(db) {
-  ipcMain.handle(FeatureApi.templateGet, async (event, id) => {
-    var latestClipboardList = await nedbFindOne(db, { _id: id });
-    return latestClipboardList.value;
-  });
+  const featureApiSet = () => {
+    ipcMain.handle(FeatureApi.templateGet, async (event, id) => {
+      var latestClipboardList = await nedbFindOne(db, { _id: id });
+      return latestClipboardList.value;
+    });
 
-  //作成
-  ipcMain.handle(FeatureApi.postTemplate, (event, data) => {
-    nedbUpdate(db, { _id: FeatureName }, { value: data.list });
-    nedbInsert(db, data.contents);
+    //作成
+    ipcMain.handle(FeatureApi.postTemplate, (event, data) => {
+      nedbUpdate(db, { _id: FeatureName }, { value: data.list });
+      nedbInsert(db, data.contents);
 
-    return "ok";
-  });
+      return "ok";
+    });
 
-  //更新
-  ipcMain.handle(FeatureApi.putTemplate, (event, data) => {
-    nedbUpdate(db, { _id: FeatureName }, { value: data.list });
-    nedbUpdate(db, { _id: data.contents.id }, { value: data.contents.value });
+    //更新
+    ipcMain.handle(FeatureApi.putTemplate, (event, data) => {
+      nedbUpdate(db, { _id: FeatureName }, { value: data.list });
+      nedbUpdate(db, { _id: data.contents.id }, { value: data.contents.value });
 
-    return "ok";
-  });
+      return "ok";
+    });
 
-  //削除
-  ipcMain.handle(FeatureApi.deleteTemplate, (event, data) => {
-    nedbUpdate(db, { _id: FeatureName }, { value: data.list });
-    nedbDelete(db, { _id: data.contents.id });
+    //削除
+    ipcMain.handle(FeatureApi.deleteTemplate, (event, data) => {
+      nedbUpdate(db, { _id: FeatureName }, { value: data.list });
+      nedbDelete(db, { _id: data.contents.id });
 
-    return "ok";
-  });
+      return "ok";
+    });
+  };
+
+  window.open(featureApiSet);
 }

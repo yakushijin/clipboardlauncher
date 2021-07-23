@@ -15,19 +15,17 @@ const WindowSize = {
 export async function appSettingInit(InMemoryDb, db) {
   const window = new AppSettingWindow(WindowSize, FeatureName, InMemoryDb, db);
 
-  window.commonApiSet();
-  featureApiSet(db);
-  window.open();
-}
+  const featureApiSet = () => {
+    //更新
+    ipcMain.handle(FeatureApi.updateAppSetting, (event, data) => {
+      db.update(
+        { _id: FeatureName },
+        { $set: { value: data } },
+        (error, newDoc) => {}
+      );
+      return "ok";
+    });
+  };
 
-async function featureApiSet(db) {
-  //更新
-  ipcMain.handle(FeatureApi.updateAppSetting, (event, data) => {
-    db.update(
-      { _id: FeatureName },
-      { $set: { value: data } },
-      (error, newDoc) => {}
-    );
-    return "ok";
-  });
+  window.open(featureApiSet);
 }

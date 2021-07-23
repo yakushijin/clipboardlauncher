@@ -19,23 +19,16 @@ export class Window {
     };
   }
 
-  async openStateCheck() {
+  async open(featureApiSet) {
     const DispStatus = await nedbFindOne(this.InMemoryDb, {
       _id: this.dispOpen,
     });
-    this.dispStatus = DispStatus.value;
-    console.log(2, this.dispStatus);
-  }
 
-  async open() {
     //ウィンドウが開いている場合は新たに開かない
-
-    if (this.dispStatus) {
+    if (DispStatus.value) {
       return;
     }
-    console.log(1, this.dispStatus);
 
-    // if (!this.dispStatus) {
     var mouthPoint = screen.getCursorScreenPoint();
     const mainWindow = new BrowserWindow({
       width: this.x,
@@ -53,16 +46,6 @@ export class Window {
     });
     mainWindow.loadFile("public/" + this.id + ".html", ["test"]);
     nedbUpdate(this.InMemoryDb, { _id: this.dispOpen }, { value: true });
-
-    this.mainWindow = mainWindow;
-    // }
-  }
-
-  async commonApiSet() {
-    if (this.dispStatus) {
-      return;
-    }
-    console.log(this.dispStatus);
 
     //ハンドラ初期化
     Object.keys(this.apiList).forEach((key) =>
@@ -99,7 +82,7 @@ export class Window {
       this.commonApiList.windowClose,
       async (event, someArgument) => {
         try {
-          this.mainWindow.close();
+          mainWindow.close();
           nedbUpdate(this.InMemoryDb, { _id: this.dispOpen }, { value: false });
         } catch (error) {
           // app.relaunch();
@@ -107,6 +90,9 @@ export class Window {
         }
       }
     );
+
+    //各画面ごとの独自API
+    featureApiSet();
   }
 }
 

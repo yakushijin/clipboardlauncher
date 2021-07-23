@@ -27,33 +27,30 @@ export async function clipboardInit(InMemoryDb, db) {
     FeatureApi
   );
 
-  window.openStateCheck();
-  window.commonApiSet();
-  featureApiSet(db);
-  window.open();
-}
+  //各イベント登録
+  const featureApiSet = () => {
+    //クリップボード一覧クリック時の処理
+    ipcMain.handle(FeatureApi.clipboardSet, async (event, index) => {
+      var latestClipboardList = await nedbFindOne(db, { _id: FeatureName });
+      var newClipboardData = latestClipboardList.value[index];
+      latestClipboardList.value.splice(index, 1);
+      await nedbUpdate(
+        db,
+        { _id: FeatureName },
+        { value: latestClipboardList.value }
+      );
+      clipboard.writeText(newClipboardData);
+    });
 
-//各イベント登録
-function featureApiSet(db) {
-  //クリップボード一覧クリック時の処理
-  ipcMain.handle(FeatureApi.clipboardSet, async (event, index) => {
-    var latestClipboardList = await nedbFindOne(db, { _id: FeatureName });
-    var newClipboardData = latestClipboardList.value[index];
-    latestClipboardList.value.splice(index, 1);
-    await nedbUpdate(
-      db,
-      { _id: FeatureName },
-      { value: latestClipboardList.value }
-    );
-    clipboard.writeText(newClipboardData);
-  });
+    //クリップボード一覧クリアボタン押下時の処理
+    ipcMain.handle(FeatureApi.clipboardAllDelete, async (event, data) => {
+      db.update(
+        { _id: FeatureName },
+        { $set: { value: [] } },
+        (error, newDoc) => {}
+      );
+    });
+  };
 
-  //クリップボード一覧クリアボタン押下時の処理
-  ipcMain.handle(FeatureApi.clipboardAllDelete, async (event, data) => {
-    db.update(
-      { _id: FeatureName },
-      { $set: { value: [] } },
-      (error, newDoc) => {}
-    );
-  });
+  window.open(featureApiSet);
 }
