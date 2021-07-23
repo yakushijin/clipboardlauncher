@@ -115,7 +115,7 @@ const PathTypeCheck = (data) => {
   } else if (string.slice(0, 1) === "/") {
     type = "local";
   } else {
-    alert("no");
+    type = "no";
   }
   return type;
 };
@@ -130,7 +130,7 @@ const TypeIcon = ({ data }) => {
       iconColor = "#844";
       break;
     case "no":
-      alert("no");
+      iconColor = "#222";
       break;
   }
   return <ItemIcon iconColor={iconColor} />;
