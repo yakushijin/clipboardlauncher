@@ -27,6 +27,7 @@ export async function clipboardInit(InMemoryDb, db) {
     FeatureApi
   );
 
+  window.openStateCheck();
   window.commonApiSet();
   featureApiSet(db);
   window.open();

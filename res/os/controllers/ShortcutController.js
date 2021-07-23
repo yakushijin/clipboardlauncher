@@ -26,6 +26,7 @@ export async function shortcutInit(InMemoryDb, db) {
     FeatureApi
   );
 
+  window.openStateCheck();
   window.commonApiSet();
   featureApiSet(db);
   window.open();

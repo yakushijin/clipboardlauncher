@@ -32,6 +32,7 @@ export async function templateInit(InMemoryDb, db) {
     db,
     FeatureApi
   );
+  window.openStateCheck();
   window.commonApiSet();
   featureApiSet(db);
   window.open();

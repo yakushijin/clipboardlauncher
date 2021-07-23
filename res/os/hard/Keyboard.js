@@ -5,9 +5,9 @@ import { clipboardInit } from "../controllers/ClipboardController";
 
 //キーボードショートカット設定
 export function keyboardSetting(DbSet) {
-  const ClipboardOpenButton = "CommandOrControl+Shift+Z";
-  const ShortcutOpenButton = "CommandOrControl+Shift+X";
-  const TemplateOpenButton = "CommandOrControl+Shift+C";
+  const ClipboardOpenButton = "CommandOrControl+Alt+Z";
+  const ShortcutOpenButton = "CommandOrControl+Alt+X";
+  const TemplateOpenButton = "CommandOrControl+Alt+C";
 
   globalShortcut.register(ClipboardOpenButton, () => {
     clipboardInit(DbSet.InMemoryDb, DbSet.ClipboardDb);

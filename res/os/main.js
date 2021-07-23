@@ -5,13 +5,17 @@ import { keyboardSetting } from "./hard/Keyboard";
 import { clipboardSurveillance } from "./hard/Clipboard";
 
 app.whenReady().then(() => {
-  const DbSet = dbInit();
+  try {
+    const DbSet = dbInit();
 
-  trayInit();
+    trayInit(DbSet);
 
-  keyboardSetting(DbSet);
+    keyboardSetting(DbSet);
 
-  clipboardSurveillance(DbSet.ClipboardDb);
+    clipboardSurveillance(DbSet.ClipboardDb);
+  } catch (error) {
+    console.error(error);
+  }
 });
 
 app.on("window-all-closed", function () {
