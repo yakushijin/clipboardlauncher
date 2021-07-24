@@ -13,7 +13,12 @@ const WindowSize = {
 };
 
 export async function appSettingInit(InMemoryDb, db) {
-  const window = new AppSettingWindow(WindowSize, FeatureName, InMemoryDb, db);
+  const appSettingWindow = new AppSettingWindow(
+    WindowSize,
+    FeatureName,
+    InMemoryDb,
+    db
+  );
 
   const featureApiSet = () => {
     //更新
@@ -27,5 +32,5 @@ export async function appSettingInit(InMemoryDb, db) {
     });
   };
 
-  window.open(featureApiSet);
+  appSettingWindow.open(featureApiSet);
 }

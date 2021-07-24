@@ -1,9 +1,11 @@
-import { app, Menu, Tray } from "electron";
+import { Menu, Tray } from "electron";
 import { appSettingInit } from "../controllers/AppSettingController";
+
+var tray;
 
 //タスクトレイ設定
 export function trayInit(DbSet) {
-  const tray = new Tray(__dirname + "/icon/icon.png");
+  tray = new Tray(__dirname + "/icon/icon.png");
   var contextMenu = Menu.buildFromTemplate([
     {
       label: "設定",
@@ -13,21 +15,7 @@ export function trayInit(DbSet) {
     },
     {
       label: "起動",
-      submenu: [
-        {
-          label: "再起動",
-          click: () => {
-            app.relaunch();
-            app.exit();
-          },
-        },
-        {
-          label: "終了",
-          click: () => {
-            app.exit();
-          },
-        },
-      ],
+      submenu: [{ label: "終了", role: "quit" }],
     },
   ]);
   tray.setContextMenu(contextMenu);

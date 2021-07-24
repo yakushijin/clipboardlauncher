@@ -82,7 +82,6 @@ function AppSettingEntry() {
 
   return (
     <React.Fragment>
-      <GlobalStyle />
       <AppSettingView />
     </React.Fragment>
   );

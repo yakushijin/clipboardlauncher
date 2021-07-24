@@ -6,10 +6,6 @@ import styled from "styled-components";
 import { initDataGet, dataSet } from "../common/ProcessInterface";
 import { FeatureApi, CommonApi } from "../const/AppSettingConst";
 
-const close = () => {
-  ipcRenderer.invoke(CommonApi.windowClose);
-};
-
 export const AppSettingView = () => {
   const [data, setData] = useState([]);
 
@@ -17,12 +13,6 @@ export const AppSettingView = () => {
 
   return (
     <React.Fragment>
-      <HeaderArea>
-        <TitleArea>アプリケーション設定</TitleArea>
-        <IconArea>
-          <DispCloseIcon onClick={close} />
-        </IconArea>
-      </HeaderArea>
       <div>test</div>
     </React.Fragment>
   );

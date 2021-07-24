@@ -85,8 +85,7 @@ export class Window {
           mainWindow.close();
           nedbUpdate(this.InMemoryDb, { _id: this.dispOpen }, { value: false });
         } catch (error) {
-          // app.relaunch();
-          app.exit();
+          console.log(error);
         }
       }
     );
@@ -110,33 +109,26 @@ export class AppSettingWindow {
     };
   }
 
-  open() {
+  async open(featureApiSet) {
+    console.log(1);
     //ウィンドウが開いている場合は新たに開かない
-    const DispStatus = nedbFindOne(this.InMemoryDb, {
+    const DispStatus = await nedbFindOne(this.InMemoryDb, {
       _id: this.dispOpen,
     });
-    if (!DispStatus.value) {
-      var mouthPoint = screen.getCursorScreenPoint();
-      const mainWindow = new BrowserWindow({
-        width: this.x,
-        height: this.y,
-        x: mouthPoint.x - 40,
-        y: mouthPoint.y - 20,
-        alwaysOnTop: true,
-        transparent: true,
-        frame: false,
-        webPreferences: {
-          preload: path.join(__dirname, "preload.js"),
-        },
-      });
-      mainWindow.loadFile("public/" + this.id + ".html", ["test"]);
-      nedbUpdate(this.InMemoryDb, { _id: this.dispOpen }, { value: true });
-
-      this.mainWindow = mainWindow;
+    if (DispStatus.value) {
+      return;
     }
-  }
 
-  commonApiSet() {
+    const mainWindow = new BrowserWindow({
+      width: this.x,
+      height: this.y,
+      webPreferences: {
+        preload: path.join(__dirname, "preload.js"),
+      },
+    });
+    mainWindow.loadFile("public/" + this.id + ".html", ["test"]);
+    nedbUpdate(this.InMemoryDb, { _id: this.dispOpen }, { value: true });
+
     //初回データ取得
     ipcMain.handle(
       this.commonApiList.getDbData,
@@ -149,15 +141,17 @@ export class AppSettingWindow {
           });
           return [];
         }
-
         return dbData.value;
       }
     );
 
     //ウィンドウを閉じる
-    ipcMain.handle(this.commonApiList.windowClose, async (event) => {
+    mainWindow.on("closed", function () {
       app.relaunch();
       app.exit();
     });
+
+    //各画面ごとの独自API
+    featureApiSet();
   }
 }
