@@ -8,8 +8,8 @@ const FeatureApi = {
 };
 
 const WindowSize = {
-  x: 600,
-  y: 600,
+  x: 400,
+  y: 200,
 };
 
 export async function appSettingInit(InMemoryDb, db) {

@@ -53,7 +53,7 @@ async function appSettingInit(DbSet) {
   if (!dbData) {
     nedbInsert(DbSet.AppSettingDb, {
       _id: "appSetting",
-      value: DefaultSettingData,
+      value: [DefaultSettingData],
     });
   }
 }

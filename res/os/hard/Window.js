@@ -144,19 +144,18 @@ export class AppSettingWindow {
       }
     );
 
-    //ウィンドウを閉じる
+    //ウィンドウを閉じる（再起動）
     mainWindow.on("closed", function () {
       app.relaunch();
       app.exit();
     });
 
-    //ウィンドウを閉じる
+    //ウィンドウを閉じる（ウィンドウを閉じるのみ）
     ipcMain.handle(
       this.commonApiList.windowClose,
       async (event, someArgument) => {
         try {
-          app.relaunch();
-          app.exit();
+          app.quit();
         } catch (error) {
           console.log(error);
         }

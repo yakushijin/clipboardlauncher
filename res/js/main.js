@@ -32,6 +32,22 @@ const GlobalStyle = createGlobalStyle`
   }
 `;
 
+const AppSettingGlobalStyle = createGlobalStyle`
+  html{
+    height:100%;
+    overflow:hidden;
+  }
+  body {
+    background:#f5f5f5;
+    margin:10;
+    padding:10;
+    height: 100%;
+  }
+  .app {
+    height: 100%;
+  }
+`;
+
 function ClipboardEntry() {
   windowClose(ClipboardApi.getDispSize, ClipboardApi.windowClose);
 
@@ -78,10 +94,9 @@ if (document.getElementById("templateApp")) {
 }
 
 function AppSettingEntry() {
-  // windowClose(AppSettingApi.getDispSize, AppSettingApi.windowClose);
-
   return (
     <React.Fragment>
+      <AppSettingGlobalStyle />
       <AppSettingView />
     </React.Fragment>
   );
