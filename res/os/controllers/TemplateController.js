@@ -21,12 +21,9 @@ const WindowSize = {
   y: 600,
 };
 
-const WindowAutoClose = true;
-
 export async function templateInit(InMemoryDb, db) {
   const window = new Window(
     WindowSize,
-    WindowAutoClose,
     FeatureName,
     InMemoryDb,
     db,

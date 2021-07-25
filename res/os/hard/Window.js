@@ -3,11 +3,10 @@ import { app, ipcMain, BrowserWindow, screen } from "electron";
 import path from "path";
 
 export class Window {
-  constructor(windowSize, autoClose, id, InMemoryDb, db, apiList) {
+  constructor(windowSize, id, InMemoryDb, db, apiList) {
     this.id = id;
     this.x = windowSize.x;
     this.y = windowSize.y;
-    this.autoClose = autoClose;
     this.dispOpen = id + "DispOpen";
     this.InMemoryDb = InMemoryDb;
     this.db = db;
@@ -23,6 +22,11 @@ export class Window {
     const DispStatus = await nedbFindOne(this.InMemoryDb, {
       _id: this.dispOpen,
     });
+
+    const appSettingData = await nedbFindOne(this.InMemoryDb, {
+      _id: "appSettingData",
+    });
+    this.autoClose = appSettingData.value[0].autoWindowClose;
 
     //ウィンドウが開いている場合は新たに開かない
     if (DispStatus.value) {

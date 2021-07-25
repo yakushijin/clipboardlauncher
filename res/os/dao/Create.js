@@ -55,5 +55,14 @@ async function appSettingInit(DbSet) {
       _id: "appSetting",
       value: [DefaultSettingData],
     });
+    nedbInsert(DbSet.InMemoryDb, {
+      _id: "appSettingData",
+      value: [DefaultSettingData],
+    });
+  } else {
+    nedbInsert(DbSet.InMemoryDb, {
+      _id: "appSettingData",
+      value: dbData.value,
+    });
   }
 }

@@ -14,12 +14,9 @@ const WindowSize = {
   y: 600,
 };
 
-const WindowAutoClose = true;
-
 export async function shortcutInit(InMemoryDb, db) {
   const window = new Window(
     WindowSize,
-    WindowAutoClose,
     FeatureName,
     InMemoryDb,
     db,

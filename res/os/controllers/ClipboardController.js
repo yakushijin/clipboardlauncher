@@ -14,13 +14,10 @@ const WindowSize = {
   y: 800,
 };
 
-const WindowAutoClose = true;
-
 //キーボードからの呼び出し処理
 export async function clipboardInit(InMemoryDb, db) {
   const window = new Window(
     WindowSize,
-    WindowAutoClose,
     FeatureName,
     InMemoryDb,
     db,
