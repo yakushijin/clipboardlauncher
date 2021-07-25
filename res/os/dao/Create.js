@@ -1,14 +1,16 @@
 const Database = require("nedb");
 import { nedbFindOne, nedbInsert } from "./Transaction";
 
+const DbSaveFilePath = ".desktop-kouritsukakun/db/";
+
 //DB初期設定処理
 export function dbInit() {
   const DbSet = {
     InMemoryDb: inMemoryDbInit(),
-    AppSettingDb: fileDbInit("appSetting.db"),
-    ClipboardDb: fileDbInit("clipboard.db"),
-    ShortcutDb: fileDbInit("shortcut.db"),
-    TemplateDb: fileDbInit("template.db"),
+    AppSettingDb: fileDbInit(DbSaveFilePath + "appSetting.db"),
+    ClipboardDb: fileDbInit(DbSaveFilePath + "clipboard.db"),
+    ShortcutDb: fileDbInit(DbSaveFilePath + "shortcut.db"),
+    TemplateDb: fileDbInit(DbSaveFilePath + "template.db"),
   };
 
   appSettingInit(DbSet);
