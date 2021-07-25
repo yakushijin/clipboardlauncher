@@ -1,6 +1,6 @@
 {
-  "name": "desktop-kouritsukakun",
-  "version": "1.0.0",
+  "name": "desktop_kouritsuka_kun",
+  "version": "0.9.1",
   "description": "",
   "main": "desktop/bundle.js",
   "scripts": {
@@ -10,7 +10,7 @@
     "linux": "electron-builder --linux"
   },
   "build": {
-    "appId": "com.electron.desktop-kouritsukakun",
+    "appId": "com.electron.desktop-kouritsuka-kun",
     "productName": "desktop-kouritsukakun",
     "files": [
       "desktop/**/*",
