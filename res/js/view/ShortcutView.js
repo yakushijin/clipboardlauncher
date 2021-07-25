@@ -10,7 +10,7 @@ import { FeatureApi, CommonApi } from "../const/ShortcutConst";
 import IconButton from "@material-ui/core/IconButton";
 
 const close = () => {
-  ipcRenderer.invoke(FeatureApi.shortcutWindowClose);
+  ipcRenderer.invoke(CommonApi.windowClose);
 };
 
 export const ShortcutView = () => {

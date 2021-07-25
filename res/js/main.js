@@ -9,7 +9,6 @@ import { windowClose } from "./common/ProcessInterface";
 import { CommonApi as ClipboardApi } from "./const/ClipboardConst";
 import { CommonApi as ShortcutApi } from "./const/ShortcutConst";
 import { CommonApi as TemplateApi } from "./const/TemplateConst";
-import { CommonApi as AppSettingApi } from "./const/AppSettingConst";
 
 import styled, { createGlobalStyle } from "styled-components";
 
