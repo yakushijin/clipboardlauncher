@@ -1,5 +1,5 @@
 const Database = require("nedb");
-import { nedbInsert } from "./Transaction";
+import { nedbFindOne, nedbInsert } from "./Transaction";
 
 //DB初期設定処理
 export function dbInit() {
@@ -10,6 +10,8 @@ export function dbInit() {
     ShortcutDb: fileDbInit("shortcut.db"),
     TemplateDb: fileDbInit("template.db"),
   };
+
+  appSettingInit(DbSet);
 
   nedbInsert(DbSet.InMemoryDb, { _id: "appSettingDispOpen", value: false });
   nedbInsert(DbSet.InMemoryDb, { _id: "clipboardDispOpen", value: false });
@@ -39,4 +41,19 @@ function fileDbInit(fileName) {
     }
   });
   return db;
+}
+
+//設定ファイル初期化
+async function appSettingInit(DbSet) {
+  const DefaultSettingData = {
+    autoWindowClose: true,
+  };
+
+  var dbData = await nedbFindOne(DbSet.AppSettingDb, { _id: "appSetting" });
+  if (!dbData) {
+    nedbInsert(DbSet.AppSettingDb, {
+      _id: "appSetting",
+      value: DefaultSettingData,
+    });
+  }
 }

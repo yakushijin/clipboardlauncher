@@ -110,7 +110,6 @@ export class AppSettingWindow {
   }
 
   async open(featureApiSet) {
-    console.log(1);
     //ウィンドウが開いている場合は新たに開かない
     const DispStatus = await nedbFindOne(this.InMemoryDb, {
       _id: this.dispOpen,
@@ -150,6 +149,19 @@ export class AppSettingWindow {
       app.relaunch();
       app.exit();
     });
+
+    //ウィンドウを閉じる
+    ipcMain.handle(
+      this.commonApiList.windowClose,
+      async (event, someArgument) => {
+        try {
+          app.relaunch();
+          app.exit();
+        } catch (error) {
+          console.log(error);
+        }
+      }
+    );
 
     //各画面ごとの独自API
     featureApiSet();
