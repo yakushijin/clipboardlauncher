@@ -4,6 +4,7 @@ import ListItem from "@material-ui/core/ListItem";
 import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction";
 import IconButton from "@material-ui/core/IconButton";
 import styled from "styled-components";
+import { FeatureApi, CommonApi } from "../const/ClipboardConst";
 
 import Divider from "@material-ui/core/Divider";
 import { makeStyles } from "@material-ui/core/styles";
@@ -66,7 +67,9 @@ export const SimpleList = ({ listData }) => {
 };
 
 function clipboardSet(index) {
-  ipcRenderer.invoke("clipboardSet", index);
+  ipcRenderer
+    .invoke(FeatureApi.clipboardSet, index)
+    .then(ipcRenderer.invoke(CommonApi.windowClose));
 }
 
 export const TemplateList = ({

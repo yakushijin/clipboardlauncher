@@ -14,40 +14,35 @@ const WindowSize = {
   y: 600,
 };
 
-const WindowAutoClose = true;
-
 export async function shortcutInit(InMemoryDb, db) {
   const window = new Window(
     WindowSize,
-    WindowAutoClose,
     FeatureName,
     InMemoryDb,
     db,
     FeatureApi
   );
 
-  window.commonApiSet();
-  featureApiSet(db);
-  window.open();
-}
+  const featureApiSet = () => {
+    //更新
+    ipcMain.handle(FeatureApi.updateShortcut, (event, data) => {
+      db.update(
+        { _id: FeatureName },
+        { $set: { value: data } },
+        (error, newDoc) => {}
+      );
+      return "ok";
+    });
 
-async function featureApiSet(db) {
-  //更新
-  ipcMain.handle(FeatureApi.updateShortcut, (event, data) => {
-    db.update(
-      { _id: FeatureName },
-      { $set: { value: data } },
-      (error, newDoc) => {}
-    );
-    return "ok";
-  });
+    //リンククリック
+    ipcMain.handle(FeatureApi.shortcutOpenDirectory, async (event, data) => {
+      if (data.type === "local") {
+        openFileOrDirectory(data.path);
+      } else if (data.type === "web") {
+        openBrowser(data.path);
+      }
+    });
+  };
 
-  //リンククリック
-  ipcMain.handle(FeatureApi.shortcutOpenDirectory, async (event, data) => {
-    if (data.type === "local") {
-      openFileOrDirectory(data.path);
-    } else if (data.type === "web") {
-      openBrowser(data.path);
-    }
-  });
+  window.open(featureApiSet);
 }

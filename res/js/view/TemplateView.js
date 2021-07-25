@@ -31,6 +31,10 @@ const AddButtonArea = styled.div`
   right: 0;
 `;
 
+const close = () => {
+  ipcRenderer.invoke(CommonApi.windowClose);
+};
+
 export const TemplateView = () => {
   const [data, setData] = useState([]);
   const [ContentsData, setContentsData] = useState("");

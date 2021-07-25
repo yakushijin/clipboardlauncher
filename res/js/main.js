@@ -4,6 +4,7 @@ import ReactDOM from "react-dom";
 import { ClipboardView } from "./view/ClipboardView";
 import { ShortcutView } from "./view/ShortcutView";
 import { TemplateView } from "./view/TemplateView";
+import { AppSettingView } from "./view/AppSettingView";
 import { windowClose } from "./common/ProcessInterface";
 import { CommonApi as ClipboardApi } from "./const/ClipboardConst";
 import { CommonApi as ShortcutApi } from "./const/ShortcutConst";
@@ -26,6 +27,22 @@ const GlobalStyle = createGlobalStyle`
     color:#000;
     margin:0;
     padding:0;
+    height: 100%;
+  }
+`;
+
+const AppSettingGlobalStyle = createGlobalStyle`
+  html{
+    height:100%;
+    overflow:hidden;
+  }
+  body {
+    background:#f5f5f5;
+    margin:10;
+    padding:10;
+    height: 100%;
+  }
+  .app {
     height: 100%;
   }
 `;
@@ -73,4 +90,20 @@ function TemplateEntry() {
 
 if (document.getElementById("templateApp")) {
   ReactDOM.render(<TemplateEntry />, document.getElementById("templateApp"));
+}
+
+function AppSettingEntry() {
+  return (
+    <React.Fragment>
+      <AppSettingGlobalStyle />
+      <AppSettingView />
+    </React.Fragment>
+  );
+}
+
+if (document.getElementById("appSettingApp")) {
+  ReactDOM.render(
+    <AppSettingEntry />,
+    document.getElementById("appSettingApp")
+  );
 }
